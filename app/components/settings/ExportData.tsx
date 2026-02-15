@@ -6,14 +6,15 @@ export default function ExportData() {
   const [range, setRange] = useState("Last 7 Days");
 
   return (
-    <div className="w-[80vw] px-4 sm:px-0 sm:w-[842px] h-auto sm:h-[530px]">
+     <div className="w-[325px] max-w-full sm:w-full max-w-[880px] mx-auto -mx-3 sm:mx-auto relative px-1 pt-14 sm:pt-0 sm:px-0">
+    
       {/* HEADER */}
-      <h1 className="text-2xl font-semibold text-[#364153] mb-10">
+      <h1 className="text-2xl font-semibold text-[#364153] mb-10 text-center sm:text-left">
         Export Your Data
       </h1>
 
       {/* DATE RANGE BUTTONS */}
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-8 sm:mb-10">
+      <div className="flex flex-col sm:flex-row md:flex-wrap gap-4 sm:gap-6 mb-8 sm:mb-10">
         <DateButton
           active={range === "Last 7 Days"}
           onClick={() => setRange("Last 7 Days")}
@@ -41,7 +42,7 @@ export default function ExportData() {
         Choose File Format
       </h3>
 
-      <div className="flex gap-8 mb-12">
+      <div className="flex flex-wrap sm:flex-nowrap justify-center sm:justify-start gap-6 sm:gap-8 mb-12">
         <FormatBox
           icon={
             <svg
@@ -81,17 +82,19 @@ export default function ExportData() {
       </div>
 
       {/* DOWNLOAD */}
-      <button
-        className="
-          w-fit px-12 py-4
-          bg-[#39E600] text-white
-          rounded-2xl text-lg font-semibold
-          shadow-[0_8px_20px_rgba(57,230,0,0.35)]
-          hover:brightness-110 transition
-        "
-      >
-        Download Report
-      </button>
+      <div className="flex justify-center sm:justify-start">
+        <button
+          className="
+            w-full sm:w-fit px-12 py-4
+            bg-[#39E600] text-white
+            rounded-2xl text-lg font-semibold
+            shadow-[0_8px_20px_rgba(57,230,0,0.35)]
+            hover:brightness-110 transition
+          "
+        >
+          Download Report
+        </button>
+      </div>
     </div>
   );
 }
@@ -110,7 +113,8 @@ function DateButton({
     <button
       onClick={onClick}
       className={`
-        min-w-[210px] h-[56px]
+        min-w-[190px] sm:min-w-[200px] h-[56px]
+        w-full sm:w-auto
         rounded-2xl border
         text-lg font-medium
         transition
@@ -137,7 +141,7 @@ function FormatBox({
   return (
     <div
       className="
-        w-[110px] h-[110px]
+        w-[110px] h-[110px] md:w-[104px] md:h-[104px] lg:w-[110px] lg:h-[110px]
         border border-[#CCCCCC]
         rounded-2xl
         flex flex-col items-center justify-center

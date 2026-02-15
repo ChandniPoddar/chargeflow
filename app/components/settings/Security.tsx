@@ -8,7 +8,7 @@ export default function Security({
   setActiveTab: (tab: any) => void;
 }) {
   return (
-    <div className="w-[80vw] px-4 sm:px-0 sm:w-[842px] h-auto sm:h-[530px]">
+    <div className="w-full max-w-[880px] sm:mx-auto px-2 sm:px-0 h-auto">
 
       {/* HEADER */}
       <h1 className="text-xl sm:text-2xl font-semibold text-[#364153]">
@@ -67,3 +67,4 @@ export default function Security({
     </div>
   );
 }
+

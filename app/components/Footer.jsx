@@ -1,23 +1,19 @@
 import Image from "next/image";
-import {
-  FiMapPin,
-  FiMail,
-  FiPhone,
-} from "react-icons/fi";
+import { FiMapPin, FiMail, FiPhone } from "react-icons/fi";
 import { FaInstagram, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
     <footer className="bg-[#EFFFF0] border-t">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12">
 
         {/* TOP GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
 
           {/* BRAND */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo.png" alt="ChargeFlow" width={42} height={42} />
+              <Image src="/image.png" alt="ChargeFlow" width={42} height={42} />
               <span className="font-bold text-lg">CHARGEFLOW</span>
             </div>
 
@@ -97,9 +93,9 @@ export default function Footer() {
         </div>
 
         {/* BOTTOM BAR */}
-        <div className="border-t mt-10 pt-4 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-          <span>© 2025 ChargeFlow. All Rights Reserved.</span>
-          <div className="flex gap-4 mt-2 md:mt-0">
+        <div className="border-t mt-10 pt-4 flex flex-col md:flex-row md:items-center justify-between text-sm text-gray-500 gap-3 md:gap-6">
+          <span>Â© 2025 ChargeFlow. All Rights Reserved.</span>
+          <div className="flex gap-4 md:gap-5 mt-2 md:mt-0">
             <span className="hover:text-[#29B605] cursor-pointer">
               Terms of Service
             </span>

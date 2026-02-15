@@ -69,14 +69,14 @@ const menu = [
 
 export default function SettingsSidebar({ activeTab, onChange }: Props) {
   return (
-   <aside className="block w-full sm:w-[290px] h-auto sm:h-[590px]">
+   <aside className="block w-full  md:h-[590px]  lg:h-[590px] sm:w-[290px] lg:w-[300px] ">
 
       <div
         className="
           w-full h-full
           bg-white
           rounded-2xl
-          border border-[#CCCCCC]
+          h-[590px]
           shadow-lg
           overflow-hidden
           flex flex-col
@@ -95,7 +95,8 @@ export default function SettingsSidebar({ activeTab, onChange }: Props) {
                 h-[72px]
                 px-6
                 mt-2
-                border border-[#CCCCCC]
+                rounded-sm
+               
                 transition-colors
                 shadow-sm
                 ${

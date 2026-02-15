@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 
@@ -9,6 +9,7 @@ import Overview from "./components/dashboard/Overview";
 import Bookings from "./components/dashboard/Bookings";
 import Vehicle from "./components/dashboard/Vehicle";
 import History from "./components/dashboard/History";
+
 /* SETTINGS SIDEBAR */
 import SettingsSidebar from "./components/settingsSidebar";
 
@@ -32,58 +33,64 @@ type SettingsTab =
   | "Delete";
 
 type ViewMode = "dashboard" | "settings";
-
+/* ================= MAIN PAGE COMPONENT ================= */
 export default function Page() {
-  /* GLOBAL VIEW MODE */
+  /* ================= GLOBAL VIEW MODE ================= */
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
 
-  /* DASHBOARD STATE */
+  /* ================= DASHBOARD STATE ================= */
   const [dashboardTab, setDashboardTab] =
     useState<DashboardTab>("Overview");
 
-  /* SETTINGS STATE */
+  /* ================= SETTINGS STATE ================= */
   const [settingsTab, setSettingsTab] =
     useState<SettingsTab>("Personal Information");
 
-  /* USER STATE */
-  const [name] = useState("Vikram Singh");
-  const [email] = useState("vikram.singh@example.com");
+  /* ================= USER STATE (HEADER SOURCE OF TRUTH) ================= */
+  const [name, setName] = useState("Vikram Singh");
+  const [email, setEmail] = useState("vikram.singh@example.com");
   const [avatar, setAvatar] = useState("/avtar.jpg");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /* ================= AVATAR UPDATE ================= */
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAvatar(URL.createObjectURL(file));
+    if (!file) return;
+
+    setAvatar(URL.createObjectURL(file));
   };
 
+  /* ================= PROFILE UPDATE FROM PERSONAL INFO ================= */
+  const handleProfileUpdate = (data: { name: string; email: string }) => {
+    setName(data.name);     // ✅ header updates
+    setEmail(data.email);   // ✅ header updates
+    setViewMode("dashboard"); // ✅ go back to dashboard
+  };
+
+  /* ================= BROWSER BACK BUTTON ================= */
+  useEffect(() => {
+    const handlePopState = () => {
+      setViewMode("dashboard");
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  /* ============================================================= */
+
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-6 py-6">
+    <div className="min-h-screen bg-white px-4 sm:px-6 md:px-8 py-6">
       <main className="mx-auto max-w-7xl space-y-6 text-[#364153]">
 
         {/* ================= HEADER ================= */}
-        <div
-          className="
-    relative  /* allow absolute positioning inside */
-    bg-[#EDFFE7] rounded-2xl shadow-lg mt-3
-    flex flex-col sm:flex-row
-    sm:items-center sm:justify-between
-    px-4 sm:px-10
-    py-6
-    w-full sm:w-[1280px] h-auto sm:h-[200px]
-  "
-        >
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+        <div className="relative bg-[#EDFFE7] rounded-2xl shadow-lg mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 px-4 sm:px-8 md:px-10 py-6 w-full max-w-[1280px] h-auto md:h-[200px] mx-auto">
 
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
             {/* PROFILE IMAGE */}
             <div className="relative">
-              <div
-                className="
-          relative rounded-full overflow-hidden
-          border-4 border-white shadow-lg
-          w-[120px] h-[120px] sm:w-[100px] sm:h-[100px]
-        "
-              >
+              <div className="relative rounded-full overflow-hidden border-4 border-white shadow-lg w-[120px] h-[120px] sm:w-[100px] sm:h-[100px]">
                 <Image
                   src={avatar}
                   alt="Profile"
@@ -95,21 +102,10 @@ export default function Page() {
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="
-    absolute bottom-1 right-1
-    w-6 h-6 sm:w-7 sm:h-7
-    rounded-full
-    bg-[#008955] 
-    border-2 border-white
-    flex items-center justify-center
-    shadow
-    text-white
-  "
+                className="absolute bottom-1 right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#008955] border-2 border-white flex items-center justify-center shadow text-white"
               >
-                <Icon icon="mdi:camera" className="text-white" />
+                <Icon icon="mdi:camera" />
               </button>
-
-
 
               <input
                 ref={fileInputRef}
@@ -127,32 +123,17 @@ export default function Page() {
               </h1>
 
               <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 text-xs sm:text-sm mt-1">
-                <Icon icon="mdi:email-outline" width={20}
-                  height={20} className=" text-[#1EA400]  " />
+                <Icon icon="mdi:email-outline" className="text-[#1EA400]" />
                 {email}
               </div>
 
-              {/* BADGES */}
-              <div className="flex flex-wrap w- 141px h-31px justify-center sm:justify-start gap-2 sm:gap-3 mt-2 sm:mt-4">
-                <span
-                  className="
-            flex items-center gap-1 sm:gap-2 px-3 py-1
-            rounded-md bg-[#FFFBEB] text-[#B45309]
-            text-[10px] sm:text-xs font-bold shadow-md
-          "
-                >
+              <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 mt-2 sm:mt-4">
+                <span className="flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFFBEB] text-[#B45309] text-xs font-bold shadow-md">
                   <Icon icon="mdi:crown" width={17} />
                   Premium Member
                 </span>
 
-                <span
-                  className="
-            flex items-center gap-1 sm:gap-2 px-3 py-1
-             w- 114px h-31px
-            rounded-md bg-[#DFFFD6] text-[#1EA400]
-            text-[10px] sm:text-xs font-medium shadow-md
-          "
-                >
+                <span className="flex items-center gap-2 px-3 py-1 rounded-md bg-[#DFFFD6] text-[#1EA400] text-xs font-medium shadow-md">
                   <Icon icon="mdi:check-circle" width={17} />
                   KYC Verified
                 </span>
@@ -160,59 +141,66 @@ export default function Page() {
             </div>
           </div>
 
-          {/* EDIT / BACK BUTTON */}
-          {viewMode === "dashboard" ? (
-            <button
-              onClick={() => {
-                setViewMode("settings");
-                setSettingsTab("Security");
-              }}
-              className="
-        absolute top-7 right-8   /* move button to top-right corner */
-        flex items-center justify-center gap-2
-        bg-[#38EF0A] text-white
-        rounded-lg shadow-md
-        hover:bg-[#2BC200]
-        transition
-        w-[80px] sm:w-[90px] h-[32px] sm:h-[36px]
-        text-sm sm:text-base
-      "
-            >
-              <Icon
-                icon="mdi:pencil-outline"
-                className="text-[14px] sm:text-[16px]"
-              />
-              Edit
-            </button>
-          ) : (
-            <button
-              onClick={() => setViewMode("dashboard")}
-              className="
-        absolute top-7 right-8   /* move button to top-right corner */
-        flex items-center justify-center gap-2
-        bg-[#38EF0A] text-white
-        rounded-lg shadow-md
-        hover:bg-[#2BC200]
-        transition
-        w-[80px] sm:w-[90px] h-[32px] sm:h-[36px]
-        text-sm sm:text-base
-      "
-            >
-              ← Back
-            </button>
-          )}
+          {/* EDIT BUTTON */}
+{viewMode === "dashboard" && (
+  <button
+    onClick={() => {
+      window.history.pushState({ view: "settings" }, "");
+      setViewMode("settings");
+      setSettingsTab("Personal Information"); // Open Personal Info tab by default
+    }}
+    className="
+      mt-4 sm:mt-0 md:mt-4
+      flex items-center justify-center gap-2
+      bg-[#38EF0A] text-white
+      rounded-lg shadow-md
+      hover:bg-[#2BC200]
+      transition
+      w-full max-w-[200px]
+      sm:w-[130px] md:w-[160px] lg:w-[120px]
+      h-[40px] sm:h-[36px]
+      text-sm sm:text-base
+      self-center sm:self-auto
+      md:self-start md:ml-auto
+      lg:absolute lg:top-7 lg:right-8
+    "
+  >
+    {/* Replaced pencil icon with custom SVG */}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+    >
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+      >
+        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+      </g>
+    </svg>
+    Edit
+  </button>
+)}
+
         </div>
+
 
         {/* ================= DASHBOARD ================= */}
         {viewMode === "dashboard" && (
           <>
-            <div className="mt-8 flex  overflow-x-auto scrollbar-hide pb-2 justify-start  w-180px h-50px sm:justify-evenly gap-4 sm:gap-6 ">
+            <div className="mt-8 flex overflow-x-auto scrollbar-hide pb-2 justify-start w-180px h-50px sm:justify-evenly gap-4 sm:gap-6 ">
               {[
-                ["Overview", "mdi:home-outline"],
-                ["Bookings", "mdi:book-open-outline"],
-                ["Vehicle", "mdi:truck-outline"],
-                ["History", "mdi:clock-outline"],
-              ].map(([label, icon]) => {
+                ["Overview"],
+                ["Bookings"],
+                ["Vehicle"],
+                ["History"],
+              ].map(([label]) => {
                 const active = dashboardTab === label;
 
                 return (
@@ -220,19 +208,58 @@ export default function Page() {
                     key={label}
                     onClick={() => setDashboardTab(label as DashboardTab)}
                     className={`
-                      flex-shrink-0
-                      w-[160px] sm:w-[200px]
-                      h-[44px] sm:h-[50px]
-                      flex items-center justify-center gap-3
-                      rounded-xl text-sm sm:text-base font-medium
-                      transition shadow-md
-                      ${active
-                        ? "bg-[#33E000] text-white"
-                        : "bg-white text-gray-500"
+    flex-shrink-0
+    w-[160px] sm:w-[200px]
+    h-[44px] sm:h-[50px]
+    flex items-center justify-center gap-3
+    rounded-xl text-sm sm:text-base font-medium
+    transition shadow-md
+    ${active
+                        ? "bg-[#38EF0A] text-white"
+                        : "bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                       }
-                    `}
+  `}
                   >
-                    <Icon icon={icon} width={18} />
+
+                    {/* ICONS */}
+                    {label === "Overview" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          d="m19.675 20.337l.546-.546l-1.836-1.837V15.23h-.77v3.046zM5.615 20q-.67 0-1.143-.472Q4 19.056 4 18.385V5.615q0-.67.472-1.143Q4.944 4 5.616 4h12.769q.67 0 1.143.472q.472.472.472 1.144v5.95q-.263-.091-.504-.148q-.24-.056-.496-.112v-5.69q0-.231-.192-.424T18.384 5H5.616q-.231 0-.424.192T5 5.616v12.769q0 .23.192.423t.423.192h5.666q.036.28.093.521q.057.24.147.479zM5 18v1V5v6.306v-.075zm2.5-1.73h3.96q.055-.257.15-.497l.2-.504H7.5zm0-3.77h6.58q.493-.346.971-.586q.478-.241 1.026-.378V11.5H7.5zm0-3.77h9v-1h-9zM18 22.117q-1.671 0-2.835-1.165Q14 19.787 14 18.116t1.165-2.836T18 14.116t2.836 1.164T22 18.116q0 1.67-1.164 2.835Q19.67 22.116 18 22.116"
+                        />
+                      </svg>
+                    )}
+
+
+                    {label === "Bookings" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2m6-3.586l-3.707-3.707l1.414-1.414L11 15.586l4.293-4.293l1.414 1.414zM5 7h14v2H5z" />
+                      </svg>
+                    )}
+
+                    {label === "Vehicle" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 16 16">
+                        <path
+                          fill="currentColor"
+                          d="M6 9a.749.749 0 1 1-1.498 0A.749.749 0 0 1 6 9m4.749.749a.749.749 0 1 0 0-1.498a.749.749 0 0 0 0 1.498M3.034 6.074L3.044 6H2.5a.5.5 0 0 1 0-1h.673l.162-1.256A2 2 0 0 1 5.32 2h5.36a2 2 0 0 1 1.984 1.747L12.823 5h.677a.5.5 0 0 1 0 1h-.549l.01.072A1.5 1.5 0 0 1 14 7.5v3a1.5 1.5 0 0 1-1.5 1.5h-.003v1.25a.75.75 0 1 1-1.5 0V12H5v1.25a.75.75 0 0 1-1.5 0V12A1.5 1.5 0 0 1 2 10.5v-3a1.5 1.5 0 0 1 1.034-1.426m1.293-2.202L4.052 6h7.891l-.272-2.127A1 1 0 0 0 10.68 3H5.32a1 1 0 0 0-.992.872M12.5 11a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5z"
+                        />
+                      </svg>
+                    )}
+
+
+                    {label === "History" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          d="M5.079 5.069c3.795-3.79 9.965-3.75 13.783.069c3.82 3.82 3.86 9.993.064 13.788s-9.968 3.756-13.788-.064a9.81 9.81 0 0 1-2.798-8.28a.75.75 0 1 1 1.487.203a8.31 8.31 0 0 0 2.371 7.017c3.245 3.244 8.468 3.263 11.668.064c3.199-3.2 3.18-8.423-.064-11.668c-3.243-3.242-8.463-3.263-11.663-.068l.748.003a.75.75 0 1 1-.007 1.5l-2.546-.012a.75.75 0 0 1-.746-.747L3.575 4.33a.75.75 0 1 1 1.5-.008zm6.92 2.18a.75.75 0 0 1 .75.75v3.69l2.281 2.28a.75.75 0 1 1-1.06 1.061l-2.72-2.72V8a.75.75 0 0 1 .75-.75"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+
+
                     {label}
                   </button>
                 );
@@ -245,40 +272,35 @@ export default function Page() {
             {dashboardTab === "History" && <History />}
           </>
         )}
+
+
         {/* ================= SETTINGS ================= */}
         {viewMode === "settings" && (
           <div className="mt-10 flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
-
-
-            {/* SIDEBAR */}
             <SettingsSidebar
               activeTab={settingsTab}
               onChange={setSettingsTab}
             />
 
-            {/* CONTENT */}
             <section className="flex-1 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-              {settingsTab === "Personal Information" && <PersonalInfo />}
+              {settingsTab === "Personal Information" && (
+  <PersonalInfo onSave={handleProfileUpdate} />
+)}
 
               {settingsTab === "Security" && (
                 <Security setActiveTab={setSettingsTab} />
               )}
-
               {settingsTab === "Notifications" && <Notifications />}
-
               {settingsTab === "Export Data" && <ExportData />}
-
               {settingsTab === "Deactivate" && (
                 <DeactivateAccount setActiveTab={setSettingsTab} />
               )}
-
               {settingsTab === "Delete" && (
                 <DeleteAccount setActiveTab={setSettingsTab} />
               )}
             </section>
           </div>
         )}
-
       </main>
     </div>
   );

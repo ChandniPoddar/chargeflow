@@ -25,6 +25,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: white;
 }
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 /* Hide scrollbar but allow scroll */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

@@ -1,0 +1,561 @@
+when i click on edit button i working perfectly , but i want to remove back button and add some logic so it navigate back when i click on back button on chrome... "use client";
+
+import { useState, useRef } from "react";
+import Image from "next/image";
+import { Icon } from "@iconify/react";
+
+/* DASHBOARD CONTENT */
+import Overview from "./components/dashboard/Overview";
+import Bookings from "./components/dashboard/Bookings";
+import Vehicle from "./components/dashboard/Vehicle";
+import History from "./components/dashboard/History";
+/* SETTINGS SIDEBAR */
+import SettingsSidebar from "./components/settingsSidebar";
+
+/* SETTINGS CONTENT */
+import PersonalInfo from "./components/settings/Personal";
+import Security from "./components/settings/Security";
+import Notifications from "./components/settings/Notifications";
+import ExportData from "./components/settings/ExportData";
+import DeleteAccount from "./components/settings/delete";
+import DeactivateAccount from "./components/settings/deactivate";
+
+/* TYPES */
+type DashboardTab = "Overview" | "Bookings" | "Vehicle" | "History";
+
+type SettingsTab =
+  | "Personal Information"
+  | "Security"
+  | "Notifications"
+  | "Export Data"
+  | "Deactivate"
+  | "Delete";
+
+type ViewMode = "dashboard" | "settings";
+
+export default function Page() {
+  /* GLOBAL VIEW MODE */
+  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
+
+  /* DASHBOARD STATE */
+  const [dashboardTab, setDashboardTab] =
+    useState<DashboardTab>("Overview");
+
+  /* SETTINGS STATE */
+  const [settingsTab, setSettingsTab] =
+    useState<SettingsTab>("Personal Information");
+
+  /* USER STATE */
+  const [name] = useState("Vikram Singh");
+  const [email] = useState("vikram.singh@example.com");
+  const [avatar, setAvatar] = useState("/avtar.jpg");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setAvatar(URL.createObjectURL(file));
+  };
+
+  return (
+    <div className="min-h-screen bg-white px-4 sm:px-6 py-6">
+      <main className="mx-auto max-w-7xl space-y-6 text-[#364153]">
+
+        {/* ================= HEADER ================= */}
+        <div
+          className="
+    relative  /* allow absolute positioning inside */
+    bg-[#EDFFE7] rounded-2xl shadow-lg mt-3
+    flex flex-col sm:flex-row
+    sm:items-center sm:justify-between
+    px-4 sm:px-10
+    py-6
+    w-full sm:w-[1280px] h-auto sm:h-[200px]
+  "
+        >
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+
+            {/* PROFILE IMAGE */}
+            <div className="relative">
+              <div
+                className="
+          relative rounded-full overflow-hidden
+          border-4 border-white shadow-lg
+          w-[120px] h-[120px] sm:w-[100px] sm:h-[100px]
+        "
+              >
+                <Image
+                  src={avatar}
+                  alt="Profile"
+                  fill
+                  className="rounded-full object-cover"
+                  priority
+                />
+              </div>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="
+    absolute bottom-1 right-1
+    w-6 h-6 sm:w-7 sm:h-7
+    rounded-full
+    bg-[#008955] 
+    border-2 border-white
+    flex items-center justify-center
+    shadow
+    text-white
+  "
+              >
+                <Icon icon="mdi:camera" className="text-white" />
+              </button>
+
+
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </div>
+
+            {/* USER INFO */}
+            <div className="text-center sm:text-left mt-3 sm:mt-0">
+              <h1 className="text-[20px] sm:text-[26px] font-semibold text-[#20C000]">
+                Welcome Back, {name}
+              </h1>
+
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 text-xs sm:text-sm mt-1">
+                <Icon icon="mdi:email-outline" width={20}
+                  height={20} className=" text-[#1EA400]  " />
+                {email}
+              </div>
+
+              {/* BADGES */}
+              <div className="flex flex-wrap w- 141px h-31px justify-center sm:justify-start gap-2 sm:gap-3 mt-2 sm:mt-4">
+                <span
+                  className="
+            flex items-center gap-1 sm:gap-2 px-3 py-1
+            rounded-md bg-[#FFFBEB] text-[#B45309]
+            text-[10px] sm:text-xs font-bold shadow-md
+          "
+                >
+                  <Icon icon="mdi:crown" width={17} />
+                  Premium Member
+                </span>
+
+                <span
+                  className="
+            flex items-center gap-1 sm:gap-2 px-3 py-1
+             w- 114px h-31px
+            rounded-md bg-[#DFFFD6] text-[#1EA400]
+            text-[10px] sm:text-xs font-medium shadow-md
+          "
+                >
+                  <Icon icon="mdi:check-circle" width={17} />
+                  KYC Verified
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* EDIT / BACK BUTTON */}
+          {viewMode === "dashboard" ? (
+            <button
+              onClick={() => {
+                setViewMode("settings");
+                setSettingsTab("Security");
+              }}
+              className="
+        absolute top-7 right-8   /* move button to top-right corner */
+        flex items-center justify-center gap-2
+        bg-[#38EF0A] text-white
+        rounded-lg shadow-md
+        hover:bg-[#2BC200]
+        transition
+        w-[80px] sm:w-[90px] h-[32px] sm:h-[36px]
+        text-sm sm:text-base
+      "
+            >
+              <Icon
+                icon="mdi:pencil-outline"
+                className="text-[14px] sm:text-[16px]"
+              />
+              Edit
+            </button>
+          ) : (
+            <button
+              onClick={() => setViewMode("dashboard")}
+              className="
+    absolute top-7 right-8
+    flex items-center justify-center
+    bg-[#38EF0A] text-white
+    rounded-lg shadow-md
+    hover:bg-[#2BC200]
+    transition
+    w-[80px] sm:w-[90px] h-[32px] sm:h-[36px]
+    text-sm sm:text-base
+  "
+            >
+              <span className="flex items-center justify-center gap-1">
+                <span className="leading-none pb-1">←</span>
+                <span>Back</span>
+              </span>
+            </button>
+
+          )}
+        </div>
+
+        {/* ================= DASHBOARD ================= */}
+        {viewMode === "dashboard" && (
+          <>
+            <div className="mt-8 flex overflow-x-auto scrollbar-hide pb-2 justify-start w-180px h-50px sm:justify-evenly gap-4 sm:gap-6 ">
+              {[
+                ["Overview"],
+                ["Bookings"],
+                ["Vehicle"],
+                ["History"],
+              ].map(([label]) => {
+                const active = dashboardTab === label;
+
+                return (
+                  <button
+                    key={label}
+                    onClick={() => setDashboardTab(label as DashboardTab)}
+                    className={`
+              flex-shrink-0
+              w-[160px] sm:w-[200px]
+              h-[44px] sm:h-[50px]
+              flex items-center justify-center gap-3
+              rounded-xl text-sm sm:text-base font-medium
+              transition shadow-md
+              ${active
+                        ? "bg-[#38EF0A] text-white"
+                        : "bg-white text-gray-500"
+                      }
+            `}
+                  >
+                    {/* ICONS */}
+                    {label === "Overview" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          d="m19.675 20.337l.546-.546l-1.836-1.837V15.23h-.77v3.046zM5.615 20q-.67 0-1.143-.472Q4 19.056 4 18.385V5.615q0-.67.472-1.143Q4.944 4 5.616 4h12.769q.67 0 1.143.472q.472.472.472 1.144v5.95q-.263-.091-.504-.148q-.24-.056-.496-.112v-5.69q0-.231-.192-.424T18.384 5H5.616q-.231 0-.424.192T5 5.616v12.769q0 .23.192.423t.423.192h5.666q.036.28.093.521q.057.24.147.479zM5 18v1V5v6.306v-.075zm2.5-1.73h3.96q.055-.257.15-.497l.2-.504H7.5zm0-3.77h6.58q.493-.346.971-.586q.478-.241 1.026-.378V11.5H7.5zm0-3.77h9v-1h-9zM18 22.117q-1.671 0-2.835-1.165Q14 19.787 14 18.116t1.165-2.836T18 14.116t2.836 1.164T22 18.116q0 1.67-1.164 2.835Q19.67 22.116 18 22.116"
+                        />
+                      </svg>
+                    )}
+
+
+                    {label === "Bookings" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2m6-3.586l-3.707-3.707l1.414-1.414L11 15.586l4.293-4.293l1.414 1.414zM5 7h14v2H5z" />
+                      </svg>
+                    )}
+
+                    {label === "Vehicle" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 16 16">
+                        <path
+                          fill="currentColor"
+                          d="M6 9a.749.749 0 1 1-1.498 0A.749.749 0 0 1 6 9m4.749.749a.749.749 0 1 0 0-1.498a.749.749 0 0 0 0 1.498M3.034 6.074L3.044 6H2.5a.5.5 0 0 1 0-1h.673l.162-1.256A2 2 0 0 1 5.32 2h5.36a2 2 0 0 1 1.984 1.747L12.823 5h.677a.5.5 0 0 1 0 1h-.549l.01.072A1.5 1.5 0 0 1 14 7.5v3a1.5 1.5 0 0 1-1.5 1.5h-.003v1.25a.75.75 0 1 1-1.5 0V12H5v1.25a.75.75 0 0 1-1.5 0V12A1.5 1.5 0 0 1 2 10.5v-3a1.5 1.5 0 0 1 1.034-1.426m1.293-2.202L4.052 6h7.891l-.272-2.127A1 1 0 0 0 10.68 3H5.32a1 1 0 0 0-.992.872M12.5 11a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5z"
+                        />
+                      </svg>
+                    )}
+
+
+                    {label === "History" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          fillRule="evenodd"
+                          d="M5.079 5.069c3.795-3.79 9.965-3.75 13.783.069c3.82 3.82 3.86 9.993.064 13.788s-9.968 3.756-13.788-.064a9.81 9.81 0 0 1-2.798-8.28a.75.75 0 1 1 1.487.203a8.31 8.31 0 0 0 2.371 7.017c3.245 3.244 8.468 3.263 11.668.064c3.199-3.2 3.18-8.423-.064-11.668c-3.243-3.242-8.463-3.263-11.663-.068l.748.003a.75.75 0 1 1-.007 1.5l-2.546-.012a.75.75 0 0 1-.746-.747L3.575 4.33a.75.75 0 1 1 1.5-.008zm6.92 2.18a.75.75 0 0 1 .75.75v3.69l2.281 2.28a.75.75 0 1 1-1.06 1.061l-2.72-2.72V8a.75.75 0 0 1 .75-.75"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+
+
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {dashboardTab === "Overview" && <Overview />}
+            {dashboardTab === "Bookings" && <Bookings />}
+            {dashboardTab === "Vehicle" && <Vehicle />}
+            {dashboardTab === "History" && <History />}
+          </>
+        )}
+
+        {/* ================= SETTINGS ================= */}
+        {viewMode === "settings" && (
+          <div className="mt-10 flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
+
+
+            {/* SIDEBAR */}
+            <SettingsSidebar
+              activeTab={settingsTab}
+              onChange={setSettingsTab}
+            />
+
+            {/* CONTENT */}
+            <section className="flex-1 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+              {settingsTab === "Personal Information" && <PersonalInfo />}
+
+              {settingsTab === "Security" && (
+                <Security setActiveTab={setSettingsTab} />
+              )}
+
+              {settingsTab === "Notifications" && <Notifications />}
+
+              {settingsTab === "Export Data" && <ExportData />}
+
+              {settingsTab === "Deactivate" && (
+                <DeactivateAccount setActiveTab={setSettingsTab} />
+              )}
+
+              {settingsTab === "Delete" && (
+                <DeleteAccount setActiveTab={setSettingsTab} />
+              )}
+            </section>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+} , do not make any changes in structure or design. 
+//-------------PersonalInfo------------------------------
+
+
+
+
+"use client";
+
+import { useState } from "react";
+
+/* ================= TYPES ================= */
+
+type ProfileData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dob: string;
+  gender: string;
+  address: string;
+};
+
+type PersonalInfoProps = {
+  onSave?: (data: { name: string; email: string }) => void;
+};
+
+/* ================= COMPONENT ================= */
+
+export default function PersonalInfo({ onSave }: PersonalInfoProps) {
+  const initialData: ProfileData = {
+    firstName: "Vikram",
+    lastName: "Singh",
+    email: "vikram.singh@example.com",
+    phone: "+91 98765 43210",
+    dob: "1958-03-15",
+    gender: "Male",
+    address: "B-12, Sector 18, Noida",
+  };
+
+  const [formData, setFormData] = useState<ProfileData>(initialData);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleChange = (key: keyof ProfileData, value: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
+    if (typeof onSave === "function") {
+      onSave({
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+      });
+    }
+
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setFormData(initialData);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="w-[80vw] sm:w-[842px] relative">
+      {/* ================= TOP-RIGHT EDIT BUTTON ================= */}
+      {!isEditing && (
+        <button
+          onClick={() => setIsEditing(true)}
+          className="absolute top-0 right-0 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#39e600] text-white hover:bg-[#2fc200] transition"
+        >
+          {/* Pencil SVG */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={20}
+            height={20}
+            viewBox="0 0 24 24"
+            className="inline-block"
+          >
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            >
+              <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+            </g>
+          </svg>
+          Edit
+        </button>
+      )}
+
+      <h1 className="text-2xl font-semibold mb-6">Personal Information</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          label="First Name"
+          value={formData.firstName}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("firstName", v)}
+        />
+
+        <Input
+          label="Last Name"
+          value={formData.lastName}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("lastName", v)}
+        />
+
+        <Input
+          label="Email"
+          value={formData.email}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("email", v)}
+        />
+
+        <Input
+          label="Phone"
+          value={formData.phone}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("phone", v)}
+        />
+
+        <Input
+          label="Date of Birth"
+          type="date"
+          value={formData.dob}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("dob", v)}
+        />
+
+        <Input
+          label="Gender"
+          value={formData.gender}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("gender", v)}
+        />
+      </div>
+
+      <div className="mt-4">
+        <Textarea
+          label="Address"
+          value={formData.address}
+          disabled={!isEditing}
+          onChange={(v) => handleChange("address", v)}
+        />
+      </div>
+
+      {/* ================= SAVE / CANCEL BUTTONS AT BOTTOM ================= */}
+      {isEditing && (
+        <div className="flex justify-end gap-4 mt-6">
+          <button
+            onClick={handleCancel}
+            className="px-7 py-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={handleSave}
+            className="px-7 py-2.5 rounded-xl bg-[#39e600] text-white hover:bg-[#2fc200] transition"
+          >
+            Save Changes
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ================= INPUT ================= */
+
+type InputProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  disabled?: boolean;
+};
+
+function Input({
+  label,
+  value,
+  onChange,
+  type = "text",
+  disabled = false,
+}: InputProps) {
+  return (
+    <div>
+      <label className="block mb-1 text-sm font-medium">{label}</label>
+      <input
+        type={type}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full px-4 py-2.5 rounded-xl border border-[#ccc] transition ${
+          disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+        }`}
+      />
+    </div>
+  );
+}
+
+/* ================= TEXTAREA ================= */
+
+type TextareaProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+};
+
+function Textarea({
+  label,
+  value,
+  onChange,
+  disabled = false,
+}: TextareaProps) {
+  return (
+    <div>
+      <label className="block mb-1 text-sm font-medium">{label}</label>
+      <textarea
+        rows={2}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full px-4 py-2.5 rounded-xl border border-[#ccc] transition ${
+          disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+        }`}
+      />
+    </div>
+  );
+}

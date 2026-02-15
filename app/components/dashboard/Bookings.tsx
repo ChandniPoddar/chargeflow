@@ -63,13 +63,14 @@ export default function Bookings() {
   return (
     <div className="w-full space-y-8 px-8">
 
+    
       {/* ================= HEADER ================= */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h2 className="text-2xl font-semibold text-gray-900">
           Booking Management
         </h2>
 
-        <button className="flex items-center gap-2 px-4 py-2 border border-[#38EF0A] rounded-lg bg-[#F8FBF8] hover:bg-[#38EF0A] hover:text-white transition shadow">
+        <button className="flex items-center justify-center gap-2 px-4 py-2 border border-[#38EF0A] rounded-lg bg-[#F8FBF8] hover:bg-[#38EF0A] hover:text-white transition shadow w-full sm:w-auto">
           <Icon icon="mdi:plus" width={18} />
           New Booking
         </button>
@@ -85,14 +86,14 @@ export default function Bookings() {
             </svg>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 whitespace-nowrap">
             Scheduled Booking (1)
           </h3>
         </div>
 
-        <div className="bg-white rounded-xl shadow p-5 w-[360px]">
-          <div className="flex justify-between">
-            <h4 className="font-semibold text-gray-800">
+        <div className="bg-white rounded-xl shadow p-5 w-full md:w-[360px]">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-semibold text-[#364153]">
               Highway Charging Point
             </h4>
             <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white">
@@ -100,10 +101,10 @@ export default function Bookings() {
             </span>
           </div>
 
-          <ul className="mt-4 space-y-3 text-sm text-gray-600">
+          <ul className="mt-4 space-y-3 text-sm text-[#A7A7A7]">
             {/* LOCATION */}
-            <li className="flex items-center gap-3">
-              <div  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+            <li className="flex items-center text-lg  gap-3 text-[#8E8E93]">
+              <div  className="w-8 h-8 flex items-center justify-center ">
                 <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
                 </svg>
@@ -111,7 +112,7 @@ export default function Bookings() {
               Yamuna Expressway
             </li>
 
-            {/* CALENDAR */}
+            {/* CALENDAR
             <li className="flex items-center gap-3">
               <div  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
                 <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 1024 1024" fill="currentColor">
@@ -119,7 +120,7 @@ export default function Bookings() {
                 </svg>
               </div>
               12 December 2025
-            </li>
+            </li> */}
 
             {/* CLOCK */}
             <li className="flex items-center gap-3">
@@ -146,7 +147,7 @@ export default function Bookings() {
                   <path d="M3 8h2v5c0 2.206 1.794 4 4 4h2v5h2v-5h2c2.206 0 4-1.794 4-4V8h2V6H3zm4-6h2v3H7zm8 0h2v3h-2z" />
                 </svg>
               </div>
-              CCS2 + CHAdeMO
+              Type 2
             </li>
 
             {/* CURRENCY */}
@@ -178,17 +179,17 @@ export default function Bookings() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-h-[360px] overflow-y-auto no-scrollbar">
           {bookings.map((b, i) => (
-            <div key={i} className="bg-white rounded-xl shadow p-5 space-y-4">
-              <div className="flex justify-between">
-                <h4 className="font-semibold text-gray-800">{b.title}</h4>
-                <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white">
+           <div key={i} className="bg-white rounded-xl shadow p-5 space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="font-semibold text-[#364153] truncate">{b.title}</h4>
+                <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white whitespace-nowrap">
                   Completed
                 </span>
               </div>
-<div className="space-y-3 text-sm text-gray-600">
+<div className="space-y-3 text-sm text-[#A7A7A7]">
   {/* LOCATION */}
-  <div className="flex items-center gap-3">
-    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+  <div className="flex items-center text-lg  gap-3 text-[#8E8E93]">
+    <div className="w-8 h-8 flex items-center justify-center">
       <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
       </svg>
@@ -235,7 +236,7 @@ export default function Bookings() {
   </div>
 
   {/* CURRENCY */}
-  <div className="flex items-center gap-3 font-medium text-gray-700">
+  <div className="flex items-center gap-3 font-medium text-[#A7A7A7]">
     <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
       <Icon icon="mdi:currency-inr" className="text-[#38EF0A] w-6 h-6" />
     </div>

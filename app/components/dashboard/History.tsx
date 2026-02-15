@@ -1,17 +1,43 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+type Booking = {
+  _id: string;
+  bookingDate: string;
+  title: string;
+  amount: number;
+};
+
 export default function History() {
-  const transactions = [
-    ["2025-07-10", "Booking Payment - Honda Accord", "₹450"],
-    ["2025-07-05", "Booking Payment - Ford Explorer", "₹500"],
-    ["2025-06-28", "Booking Payment - Toyota Camry", "₹400"],
-    ["2025-06-20", "Booking Payment - Honda Accord", "₹399"],
-    ["2025-06-15", "Booking Payment - Ford Explorer", "₹500"],
-  ];
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchBookings() {
+      try {
+        const res = await fetch("/api/bookings");
+        const data = await res.json();
+
+        if (data.success) {
+          setBookings(data.bookings);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBookings();
+  }, []);
+
+  if (loading) {
+    return <p className="px-4 sm:ml-8">Loading history...</p>;
+  }
 
   return (
     <section className="space-y-4">
-      {/* TITLE */}
       <h2 className="text-2xl font-semibold text-[#111] px-4 sm:ml-8">
         Transaction History
       </h2>
@@ -21,32 +47,28 @@ export default function History() {
         <table className="w-full text-[15px]">
           <thead>
             <tr className="bg-[#A0FF89] text-[#1F2937]">
-              <th className="px-8 py-5 text-left font-semibold">
-                Date
-              </th>
+              <th className="px-8 py-5 text-left font-semibold">Date</th>
               <th className="px-8 py-5 text-center font-semibold">
                 Description
               </th>
-              <th className="px-8 py-5 text-right font-semibold">
-                Amount
-              </th>
+              <th className="px-8 py-5 text-right font-semibold">Amount</th>
             </tr>
           </thead>
 
           <tbody>
-            {transactions.map((row, i) => (
+            {bookings.map((b) => (
               <tr
-                key={i}
+                key={b._id}
                 className="border-t border-gray-200 text-[#374151]"
               >
                 <td className="px-8 py-6 text-left">
-                  {row[0]}
+                  {new Date(b.bookingDate).toLocaleDateString()}
                 </td>
                 <td className="px-8 py-6 text-center">
-                  {row[1]}
+                  Booking Payment – {b.title}
                 </td>
                 <td className="px-8 py-6 text-right font-medium">
-                  {row[2]}
+                  ₹{b.amount}
                 </td>
               </tr>
             ))}
@@ -54,30 +76,28 @@ export default function History() {
         </table>
       </div>
 
-      {/* ================= MOBILE CARDS ================= */}
+      {/* ================= MOBILE ================= */}
       <div className="sm:hidden space-y-4 px-4">
-        {transactions.map((row, i) => (
+        {bookings.map((b) => (
           <div
-            key={i}
+            key={b._id}
             className="bg-white rounded-xl shadow-md p-4 space-y-2"
           >
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Date</span>
               <span className="font-medium text-gray-800">
-                {row[0]}
+                {new Date(b.bookingDate).toLocaleDateString()}
               </span>
             </div>
 
             <div className="text-sm text-gray-700">
-              {row[1]}
+              Booking Payment – {b.title}
             </div>
 
             <div className="flex justify-between items-center pt-2 border-t">
-              <span className="text-gray-500 text-sm">
-                Amount
-              </span>
+              <span className="text-gray-500 text-sm">Amount</span>
               <span className="font-semibold text-gray-900">
-                {row[2]}
+                ₹{b.amount}
               </span>
             </div>
           </div>

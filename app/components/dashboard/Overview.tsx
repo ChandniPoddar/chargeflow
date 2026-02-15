@@ -97,7 +97,6 @@ export default function Overview() {
 }
 
 /* ================= STAT CARD ================= */
-
 function StatCard({
   icon,
   value,
@@ -114,7 +113,8 @@ function StatCard({
       className="
         bg-white rounded-2xl
         shadow-[0_6px_16px_rgba(0,0,0,0.12)]
-        w-full max-w-[290px]
+        w-[100%] max-w-[360px]
+        sm:w-full sm:max-w-[290px]
         h-[200px]
         mx-auto
         flex flex-col items-center justify-center
@@ -137,6 +137,7 @@ function StatCard({
     </div>
   );
 }
+
 
 /* ================= ICON WRAPPER ================= */
 

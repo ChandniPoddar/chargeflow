@@ -1,6 +1,7 @@
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { UserProvider } from "./context/UserContext";
 
 export default function RootLayout({
   children,
@@ -10,9 +11,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans bg-[#F9FAFB]">
-        <Navbar />
-        {children}
-        <Footer />
+        <UserProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </UserProvider>
       </body>
     </html>
   );
