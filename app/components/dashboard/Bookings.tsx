@@ -1,74 +1,149 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { formatInr, pastBookings, type PastBooking } from "./bookingsData";
+
+type ApiBooking = {
+  _id: string;
+  title: string;
+  location: string;
+  bookingDate: string;
+  startTime: string;
+  endTime: string;
+  powerType: string;
+  plugType: string;
+  amount: number;
+  co2SavedKg?: number;
+  status?: "scheduled" | "completed" | string;
+};
+
+type DisplayBooking = PastBooking & {
+  key: string;
+  id: string;
+  status: "scheduled" | "completed";
+};
+
+function normalizeStatus(value?: string): "scheduled" | "completed" {
+  const normalized = value?.toLowerCase().trim();
+  if (normalized === "completed" || normalized === "complete" || normalized === "done") {
+    return "completed";
+  }
+  return "scheduled";
+}
+
+function formatBookingDate(value: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return parsed.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function mapApiToPastBooking(booking: ApiBooking): DisplayBooking {
+  return {
+    key: booking._id,
+    id: booking._id,
+    title: booking.title,
+    location: booking.location,
+    date: formatBookingDate(booking.bookingDate),
+    time: `${booking.startTime} - ${booking.endTime}`,
+    power: booking.powerType,
+    plug: booking.plugType,
+    amount: booking.amount ?? 0,
+    co2SavedKg: booking.co2SavedKg ?? 0,
+    status: normalizeStatus(booking.status),
+  };
+}
 
 export default function Bookings() {
-  const bookings = [
-    {
-      title: "Premium Mall Charging Hub",
-      location: "Connaught Place, New Delhi",
-      date: "12 December 2025",
-      time: "10:00 AM - 12:00 PM",
-      power: "DC Fast - 50kW",
-      plug: "Type 2",
-      amount: "₹450",
-    },
-    {
-      title: "Residential Society Charger",
-      location: "Gurugram Sector 45",
-      date: "28 November 2025",
-      time: "10:00 AM - 12:00 PM",
-      power: "AC Fast - 7.2kW",
-      plug: "Type 2",
-      amount: "₹329",
-    },
-    {
-      title: "Workplace Charging",
-      location: "Cyber City (Near Delhi Border)",
-      date: "15 October 2025",
-      time: "10:00 AM - 12:00 PM",
-      power: "AC Fast - 7.2kW",
-      plug: "Type 2",
-      amount: "₹380",
-    },
-    {
-      title: "Metro Parking Charger",
-      location: "Rajiv Chowk",
-      date: "25 September 2025",
-      time: "09:00 AM - 11:00 AM",
-      power: "AC Fast - 7.2kW",
-      plug: "Type 2",
-      amount: "₹300",
-    },
-    {
-      title: "City Center EV Station",
-      location: "Noida Sector 18",
-      date: "05 October 2025",
-      time: "11:00 AM - 01:00 PM",
-      power: "DC Fast - 60kW",
-      plug: "Type 2",
-      amount: "₹420",
-    },
-    {
-      title: "Highway EV Stop",
-      location: "NH-48",
-      date: "10 September 2025",
-      time: "02:00 PM - 04:00 PM",
-      power: "DC Fast - 100kW",
-      plug: "Type 2",
-      amount: "₹520",
-    },
-  ];
+  const [apiBookings, setApiBookings] = useState<ApiBooking[]>([]);
+  const [completingId, setCompletingId] = useState<string | null>(null);
+
+  const fetchBookings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/bookings");
+      const data = await res.json();
+
+      if (data?.success && Array.isArray(data.bookings)) {
+        setApiBookings(data.bookings);
+        window.dispatchEvent(new CustomEvent("bookings:updated"));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!mounted) return;
+
+    fetchBookings();
+
+    const intervalId = window.setInterval(fetchBookings, 15000);
+    return () => {
+      mounted = false;
+      window.clearInterval(intervalId);
+    };
+  }, [fetchBookings]);
+
+  const mappedApiBookings = useMemo<DisplayBooking[]>(() => {
+    return apiBookings.map(mapApiToPastBooking);
+  }, [apiBookings]);
+
+  const scheduledBookings = useMemo<DisplayBooking[]>(() => {
+    return mappedApiBookings.filter((booking) => booking.status === "scheduled");
+  }, [mappedApiBookings]);
+
+  const combinedPastBookings = useMemo<DisplayBooking[]>(() => {
+    const completedApi = mappedApiBookings.filter(
+      (booking) => booking.status === "completed"
+    );
+    const mappedStatic = pastBookings.map((booking) => ({
+      ...booking,
+      key: `${booking.title}-${booking.date}-${booking.time}`,
+      id: `${booking.title}-${booking.date}-${booking.time}`,
+      status: "completed" as const,
+    }));
+    return [...completedApi, ...mappedStatic];
+  }, [mappedApiBookings]);
+
+  const handleComplete = useCallback(async (bookingId: string) => {
+    setCompletingId(bookingId);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: bookingId, status: "completed" }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to complete booking");
+      }
+
+      setApiBookings((prev) =>
+        prev.map((booking) =>
+          booking._id === bookingId
+            ? { ...booking, status: "completed" }
+            : booking
+        )
+      );
+      window.dispatchEvent(new CustomEvent("bookings:updated"));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCompletingId(null);
+    }
+  }, []);
 
   return (
     <div className="w-full space-y-8 px-8">
-
-    
       {/* ================= HEADER ================= */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Booking Management
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900">Booking Management</h2>
 
         <button className="flex items-center justify-center gap-2 px-4 py-2 border border-[#38EF0A] rounded-lg bg-[#F8FBF8] hover:bg-[#38EF0A] hover:text-white transition shadow w-full sm:w-auto">
           <Icon icon="mdi:plus" width={18} />
@@ -78,7 +153,6 @@ export default function Bookings() {
 
       {/* ================= SCHEDULED BOOKING ================= */}
       <div className="border border-[#CFF5C2] rounded-xl shadow p-5 space-y-5">
-
         <div className="flex items-center gap-4 bg-[#EEFFEA] px-5 py-3 shadow-sm">
           <div className="w-10 h-10 bg-[#38EF0A] flex items-center justify-center rounded-md">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-[26px] h-[26px] text-white" fill="currentColor">
@@ -87,84 +161,84 @@ export default function Bookings() {
           </div>
 
           <h3 className="text-lg font-semibold text-gray-900 whitespace-nowrap">
-            Scheduled Booking (1)
+            Scheduled Booking ({scheduledBookings.length})
           </h3>
         </div>
 
-        <div className="bg-white rounded-xl shadow p-5 w-full md:w-[360px]">
-          <div className="flex items-center justify-between gap-2">
-            <h4 className="font-semibold text-[#364153]">
-              Highway Charging Point
-            </h4>
-            <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white">
-              Confirmed
-            </span>
+        {scheduledBookings.length === 0 ? (
+          <p className="text-sm text-gray-500 px-2">No scheduled bookings yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {scheduledBookings.map((b) => (
+              <div key={b.key} className="bg-white rounded-xl shadow p-5 w-full">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="font-semibold text-[#364153] truncate">{b.title}</h4>
+                  
+                   <button
+                  onClick={() => handleComplete(b.id)}
+                  disabled={completingId === b.id}
+                  className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white"
+                >
+                  {completingId === b.id ? "Completing..." : "Scheduled"}
+                </button>
+                </div>
+
+                <ul className="mt-4 space-y-3 text-sm text-[#A7A7A7]">
+                  {/* LOCATION */}
+                  <li className="flex items-center text-lg gap-3 text-[#8E8E93]">
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
+                      </svg>
+                    </div>
+                    {b.location}
+                  </li>
+
+                  {/* CLOCK */}
+                  <li className="flex items-center gap-3">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                      <Icon icon="mdi:clock-outline" className="text-[#38EF0A] w-6 h-6" />
+                    </div>
+                    {b.date}, {b.time}
+                  </li>
+
+                  {/* THUNDER */}
+                  <li className="flex items-center gap-3">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 15H6l7-14v8h5l-7 14z" />
+                      </svg>
+                    </div>
+                    {b.power}
+                  </li>
+
+                  {/* PLUG */}
+                  <li className="flex items-center gap-3">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 8h2v5c0 2.206 1.794 4 4 4h2v5h2v-5h2c2.206 0 4-1.794 4-4V8h2V6H3zm4-6h2v3H7zm8 0h2v3h-2z" />
+                      </svg>
+                    </div>
+                    {b.plug}
+                  </li>
+
+                  {/* CURRENCY */}
+                  <li className="flex items-center gap-3">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                      <Icon icon="mdi:currency-inr" className="text-[#38EF0A] w-6 h-6" />
+                    </div>
+                    Estimated {formatInr(b.amount)}
+                  </li>
+                </ul>
+
+              </div>
+            ))}
           </div>
-
-          <ul className="mt-4 space-y-3 text-sm text-[#A7A7A7]">
-            {/* LOCATION */}
-            <li className="flex items-center text-lg  gap-3 text-[#8E8E93]">
-              <div  className="w-8 h-8 flex items-center justify-center ">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
-                </svg>
-              </div>
-              Yamuna Expressway
-            </li>
-
-            {/* CALENDAR
-            <li className="flex items-center gap-3">
-              <div  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 1024 1024" fill="currentColor">
-                  <path d="m960 95.888l-256.224.001V32.113c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76h-256v-63.76c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76H64c-35.344 0-64 28.656-64 64v800c0 35.343 28.656 64 64 64h896c35.344 0 64-28.657 64-64v-800c0-35.329-28.656-63.985-64-63.985"></path>
-                </svg>
-              </div>
-              12 December 2025
-            </li> */}
-
-            {/* CLOCK */}
-            <li className="flex items-center gap-3">
-              <div  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-                <Icon icon="mdi:clock-outline" className="text-[#38EF0A] w-6 h-6" />
-              </div>
-              Tomorrow, 10:00 AM – 12:00 PM
-            </li>
-
-            {/* THUNDER */}
-            <li className="flex items-center gap-3">
-              <div  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11 15H6l7-14v8h5l-7 14z" />
-                </svg>
-              </div>
-              DC Fast · 150kW
-            </li>
-
-            {/* PLUG */}
-            <li className="flex items-center gap-3">
-              <div  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3 8h2v5c0 2.206 1.794 4 4 4h2v5h2v-5h2c2.206 0 4-1.794 4-4V8h2V6H3zm4-6h2v3H7zm8 0h2v3h-2z" />
-                </svg>
-              </div>
-              Type 2
-            </li>
-
-            {/* CURRENCY */}
-            <li className="flex items-center gap-3">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-                <Icon icon="mdi:currency-inr" className="text-[#38EF0A] w-6 h-6" />
-              </div>
-              Estimated ₹450
-            </li>
-          </ul>
-
-        </div>
+        )}
       </div>
 
       {/* ================= PAST BOOKINGS ================= */}
       <div className="border border-[#CFF5C2] rounded-xl shadow p-5 space-y-5">
-
         <div className="flex items-center gap-4 bg-[#EEFFEA] px-5 py-3 shadow-sm">
           <div className="w-10 h-10 bg-[#38EF0A] flex items-center justify-center rounded-md">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" className="w-[26px] h-[26px] text-white" fill="currentColor">
@@ -172,83 +246,78 @@ export default function Bookings() {
             </svg>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-900">
-            Past Booking (6)
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">Past Booking ({combinedPastBookings.length})</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-h-[360px] overflow-y-auto no-scrollbar">
-          {bookings.map((b, i) => (
-           <div key={i} className="bg-white rounded-xl shadow p-5 space-y-4">
+          {combinedPastBookings.map((b) => (
+            <div key={b.key} className="bg-white rounded-xl shadow p-5 space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <h4 className="font-semibold text-[#364153] truncate">{b.title}</h4>
-                <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white whitespace-nowrap">
-                  Completed
-                </span>
+                <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white whitespace-nowrap">Completed</span>
               </div>
-<div className="space-y-3 text-sm text-[#A7A7A7]">
-  {/* LOCATION */}
-  <div className="flex items-center text-lg  gap-3 text-[#8E8E93]">
-    <div className="w-8 h-8 flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
-      </svg>
-    </div>
-    {b.location}
-  </div>
 
-  {/* CALENDAR */}
-  <div className="flex items-center gap-3">
-    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 1024 1024" fill="currentColor">
-        <path d="m960 95.888l-256.224.001V32.113c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76h-256v-63.76c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76H64c-35.344 0-64 28.656-64 64v800c0 35.343 28.656 64 64 64h896c35.344 0 64-28.657 64-64v-800c0-35.329-28.656-63.985-64-63.985" />
-      </svg>
-    </div>
-    {b.date}
-  </div>
+              <div className="space-y-3 text-sm text-[#A7A7A7]">
+                {/* LOCATION */}
+                <div className="flex items-center text-lg gap-3 text-[#8E8E93]">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
+                    </svg>
+                  </div>
+                  {b.location}
+                </div>
 
-  {/* CLOCK */}
-  <div className="flex items-center gap-3">
-    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-      <Icon icon="mdi:clock-outline" className="text-[#38EF0A] w-6 h-6" />
-    </div>
-    {b.time}
-  </div>
+                {/* CALENDAR */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 1024 1024" fill="currentColor">
+                      <path d="m960 95.888l-256.224.001V32.113c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76h-256v-63.76c0-17.68-14.32-32-32-32s-32 14.32-32 32v63.76H64c-35.344 0-64 28.656-64 64v800c0 35.343 28.656 64 64 64h896c35.344 0 64-28.657 64-64v-800c0-35.329-28.656-63.985-64-63.985" />
+                    </svg>
+                  </div>
+                  {b.date}
+                </div>
 
-  {/* THUNDER */}
-  <div className="flex items-center gap-3">
-    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11 15H6l7-14v8h5l-7 14z" />
-      </svg>
-    </div>
-    {b.power}
-  </div>
+                {/* CLOCK */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                    <Icon icon="mdi:clock-outline" className="text-[#38EF0A] w-6 h-6" />
+                  </div>
+                  {b.time}
+                </div>
 
-  {/* PLUG */}
-  <div className="flex items-center gap-3">
-    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-      <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3 8h2v5c0 2.206 1.794 4 4 4h2v5h2v-5h2c2.206 0 4-1.794 4-4V8h2V6H3zm4-6h2v3H7zm8 0h2v3h-2z" />
-      </svg>
-    </div>
-    {b.plug}
-  </div>
+                {/* THUNDER */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M11 15H6l7-14v8h5l-7 14z" />
+                    </svg>
+                  </div>
+                  {b.power}
+                </div>
 
-  {/* CURRENCY */}
-  <div className="flex items-center gap-3 font-medium text-[#A7A7A7]">
-    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
-      <Icon icon="mdi:currency-inr" className="text-[#38EF0A] w-6 h-6" />
-    </div>
-    Amount Paid: {b.amount}
-  </div>
-</div>
+                {/* PLUG */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 8h2v5c0 2.206 1.794 4 4 4h2v5h2v-5h2c2.206 0 4-1.794 4-4V8h2V6H3zm4-6h2v3H7zm8 0h2v3h-2z" />
+                    </svg>
+                  </div>
+                  {b.plug}
+                </div>
 
+                {/* CURRENCY */}
+                <div className="flex items-center gap-3 font-medium text-[#A7A7A7]">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F8FBF8]">
+                    <Icon icon="mdi:currency-inr" className="text-[#38EF0A] w-6 h-6" />
+                  </div>
+                  Amount Paid: {formatInr(b.amount)}
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
-
     </div>
   );
 }

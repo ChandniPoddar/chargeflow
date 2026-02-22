@@ -1,36 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Booking = {
   _id: string;
   bookingDate: string;
   title: string;
   amount: number;
+  status?: "scheduled" | "completed" | string;
 };
+
+function normalizeStatus(value?: string): "scheduled" | "completed" {
+  const normalized = value?.toLowerCase().trim();
+  if (normalized === "completed" || normalized === "complete" || normalized === "done") {
+    return "completed";
+  }
+  return "scheduled";
+}
 
 export default function History() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchBookings() {
-      try {
-        const res = await fetch("/api/bookings");
-        const data = await res.json();
+  const fetchBookings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/bookings");
+      const data = await res.json();
 
-        if (data.success) {
-          setBookings(data.bookings);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+      if (data.success) {
+        setBookings(data.bookings);
       }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    fetchBookings();
   }, []);
+
+  useEffect(() => {
+    fetchBookings();
+
+    const handleUpdate = () => fetchBookings();
+    window.addEventListener("bookings:updated", handleUpdate);
+    return () => {
+      window.removeEventListener("bookings:updated", handleUpdate);
+    };
+  }, [fetchBookings]);
+
+  const completedBookings = useMemo(() => {
+    return bookings.filter(
+      (booking) => normalizeStatus(booking.status) === "completed"
+    );
+  }, [bookings]);
 
   if (loading) {
     return <p className="px-4 sm:ml-8">Loading history...</p>;
@@ -56,7 +77,7 @@ export default function History() {
           </thead>
 
           <tbody>
-            {bookings.map((b) => (
+            {completedBookings.map((b) => (
               <tr
                 key={b._id}
                 className="border-t border-gray-200 text-[#374151]"
@@ -78,7 +99,7 @@ export default function History() {
 
       {/* ================= MOBILE ================= */}
       <div className="sm:hidden space-y-4 px-4">
-        {bookings.map((b) => (
+        {completedBookings.map((b) => (
           <div
             key={b._id}
             className="bg-white rounded-xl shadow-md p-4 space-y-2"

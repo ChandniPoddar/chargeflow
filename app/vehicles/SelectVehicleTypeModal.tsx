@@ -39,6 +39,7 @@ export default function SelectVehicleTypeModal({
         {/* HEADER */}
         <div className="flex items-start gap-4 mb-8 sm:mb-12">
           <button
+          
             onClick={onBack ?? onClose}
             className="text-2xl font-semibold hover:opacity-70"
           >

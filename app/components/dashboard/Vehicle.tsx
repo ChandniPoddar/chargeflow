@@ -360,20 +360,23 @@ export default function Vehicle() {
           </div>
         </div>
       )}
+      
 
-      {/* VEHICLE TYPE MODAL */}
-      <SelectVehicleTypeModal
-        open={showTypeModal}
-        onClose={() => setShowTypeModal(false)}
-        onBack={() => {
-          setShowTypeModal(false);
-          setShowModal(true);
-        }}
-        onSelect={(type) => {
-          setVehicleType(type);
-          setShowTypeModal(false);
-        }}
-      />
+     <SelectVehicleTypeModal
+  open={showTypeModal}
+  onClose={() => setShowTypeModal(false)}
+  onBack={() => {
+    setShowTypeModal(false);
+    setShowModal(true);   // 👈 reopen Add popup
+  }}
+  onSelect={(type) => {
+    setVehicleType(type);
+    setShowTypeModal(false);
+    setShowModal(true);   // 👈 return to Add popup
+  }}
+/>
+
+    
 
     </>
   );

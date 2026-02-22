@@ -80,8 +80,10 @@ export default function PersonalInfo({ onSave }: PersonalInfoProps) {
   };
 
   return (
-    <div className="w-[325px] max-w-full sm:w-full max-w-[880px] mx-auto -mx-3 sm:mx-auto relative px-1 pt-14 sm:pt-0 sm:px-0">
-    {/* <div className="w-full max-w-[880px] mx-auto relative px-4 pt-14 sm:pt-0 sm:px-0"> */}
+    // <div className="w-[325px] max-w-full sm:w-full max-w-[880px] mx-auto -mx-3 sm:mx-auto relative px-1 pt-14 sm:pt-0 sm:px-0">
+     //<div className="w-full max-w-[880px] mx-auto relative px-4 pt-14 sm:pt-0 sm:px-0"> 
+     <div className="w-full max-w-[325px] sm:max-w-[880px] sm:min-w-[555px] mx-auto relative px-4 sm:px-0 pt-14 sm:pt-0">
+
      {/* </div> <div className="w-[325px] max-w-full sm:w-full max-w-[880px] mx-auto relative px-3 pt-14 sm:pt-0 sm:px-0">  */}
 
    
