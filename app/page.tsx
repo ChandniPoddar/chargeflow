@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import Overview from "./components/dashboard/Overview";
 import Bookings from "./components/dashboard/Bookings";
 import Vehicle from "./components/dashboard/Vehicle";
+import SupportTicket from "./components/dashboard/SupportTicket";
 import History from "./components/dashboard/History";
 
 /* SETTINGS SIDEBAR */
@@ -22,7 +23,7 @@ import DeleteAccount from "./components/settings/delete";
 import DeactivateAccount from "./components/settings/deactivate";
 
 /* TYPES */
-type DashboardTab = "Overview" | "Bookings" | "Vehicle" | "History";
+type DashboardTab = "Overview" | "Bookings" | "Vehicle" | "SupportTicket" | "History";
 
 type SettingsTab =
   | "Personal Information"
@@ -199,6 +200,7 @@ export default function Page() {
                 ["Overview"],
                 ["Bookings"],
                 ["Vehicle"],
+                 ["SupportTicket"], // New tab added
                 ["History"],
               ].map(([label]) => {
                 const active = dashboardTab === label;
@@ -246,6 +248,15 @@ export default function Page() {
                         />
                       </svg>
                     )}
+                     {/* ICONS */}
+                    {label === "SupportTicket" && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          d="m19.675 20.337l.546-.546l-1.836-1.837V15.23h-.77v3.046zM5.615 20q-.67 0-1.143-.472Q4 19.056 4 18.385V5.615q0-.67.472-1.143Q4.944 4 5.616 4h12.769q.67 0 1.143.472q.472.472.472 1.144v5.95q-.263-.091-.504-.148q-.24-.056-.496-.112v-5.69q0-.231-.192-.424T18.384 5H5.616q-.231 0-.424.192T5 5.616v12.769q0 .23.192.423t.423.192h5.666q.036.28.093.521q.057.24.147.479zM5 18v1V5v6.306v-.075zm2.5-1.73h3.96q.055-.257.15-.497l.2-.504H7.5zm0-3.77h6.58q.493-.346.971-.586q.478-.241 1.026-.378V11.5H7.5zm0-3.77h9v-1h-9zM18 22.117q-1.671 0-2.835-1.165Q14 19.787 14 18.116t1.165-2.836T18 14.116t2.836 1.164T22 18.116q0 1.67-1.164 2.835Q19.67 22.116 18 22.116"
+                        />
+                      </svg>
+                    )}
 
 
                     {label === "History" && (
@@ -269,6 +280,7 @@ export default function Page() {
             {dashboardTab === "Overview" && <Overview />}
             {dashboardTab === "Bookings" && <Bookings />}
             {dashboardTab === "Vehicle" && <Vehicle />}
+            {dashboardTab === "SupportTicket" && <SupportTicket />}
             {dashboardTab === "History" && <History />}
           </>
         )}
