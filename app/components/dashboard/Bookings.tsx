@@ -140,7 +140,7 @@ export default function Bookings() {
   }, []);
 
   return (
-    <div className="w-full space-y-8 px-8">
+    <div className="w-full space-y-6 px-4 sm:space-y-8 sm:px-6 lg:px-8">
       {/* ================= HEADER ================= */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h2 className="text-2xl font-semibold text-gray-900">Booking Management</h2>
@@ -152,15 +152,15 @@ export default function Bookings() {
       </div>
 
       {/* ================= SCHEDULED BOOKING ================= */}
-      <div className="border border-[#CFF5C2] rounded-xl shadow p-5 space-y-5">
-        <div className="flex items-center gap-4 bg-[#EEFFEA] px-5 py-3 shadow-sm">
+      <div className="space-y-4 rounded-xl border border-[#CFF5C2] p-3 shadow sm:space-y-5 sm:p-5">
+        <div className="flex items-center gap-3 bg-[#EEFFEA] px-3 py-3 shadow-sm sm:gap-4 sm:px-5">
           <div className="w-10 h-10 bg-[#38EF0A] flex items-center justify-center rounded-md">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-[26px] h-[26px] text-white" fill="currentColor">
               <path d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2m6-3.586l-3.707-3.707l1.414-1.414L11 15.586l4.293-4.293l1.414 1.414zM5 7h14v2H5z" />
             </svg>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 whitespace-nowrap">
+          <h3 className="text-base font-semibold text-gray-900 sm:text-lg">
             Scheduled Booking ({scheduledBookings.length})
           </h3>
         </div>
@@ -168,11 +168,11 @@ export default function Bookings() {
         {scheduledBookings.length === 0 ? (
           <p className="text-sm text-gray-500 px-2">No scheduled bookings yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6  md:grid-cols-2 xl:grid-cols-3">
             {scheduledBookings.map((b) => (
-              <div key={b.key} className="bg-white rounded-xl shadow p-5 w-full">
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-semibold text-[#364153] truncate">{b.title}</h4>
+              <div key={b.key} className="w-full rounded-xl bg-white p-4 shadow sm:p-5">
+                <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+                  <h4 className="w-full break-words font-semibold text-[#364153] sm:truncate">{b.title}</h4>
                   
                    <button
                   onClick={() => handleComplete(b.id)}
@@ -185,13 +185,13 @@ export default function Bookings() {
 
                 <ul className="mt-4 space-y-3 text-sm text-[#A7A7A7]">
                   {/* LOCATION */}
-                  <li className="flex items-center text-lg gap-3 text-[#8E8E93]">
+                  <li className="flex items-start gap-3 text-sm text-[#8E8E93] sm:items-center sm:text-lg">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
                       </svg>
                     </div>
-                    {b.location}
+                    <span className="min-w-0 break-words">{b.location}</span>
                   </li>
 
                   {/* CLOCK */}
@@ -238,34 +238,34 @@ export default function Bookings() {
       </div>
 
       {/* ================= PAST BOOKINGS ================= */}
-      <div className="border border-[#CFF5C2] rounded-xl shadow p-5 space-y-5">
-        <div className="flex items-center gap-4 bg-[#EEFFEA] px-5 py-3 shadow-sm">
+      <div className="space-y-4 rounded-xl border border-[#CFF5C2] p-3 shadow sm:space-y-5 sm:p-5">
+        <div className="flex items-center gap-3 bg-[#EEFFEA] px-3 py-3 shadow-sm sm:gap-4 sm:px-5">
           <div className="w-10 h-10 bg-[#38EF0A] flex items-center justify-center rounded-md">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" className="w-[26px] h-[26px] text-white" fill="currentColor">
               <path d="M13 0L8 3l5 3V4c4.955 0 9 4.045 9 9s-4.045 9-9 9s-9-4.045-9-9c0-2.453.883-4.57 2.5-6.188L5.094 5.407C3.11 7.39 2 10.053 2 13c0 6.045 4.955 11 11 11s11-4.955 11-11S19.045 2 13 2zm-2.094 6.563l-1.812.875l2.531 5A1.5 1.5 0 0 0 11.5 13v.063L8.281 16.28l1.439 1.44l3.219-3.219H13a1.5 1.5 0 0 0 1.5-1.5c0-.69-.459-1.263-1.094-1.438z" />
             </svg>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-900">Past Booking ({combinedPastBookings.length})</h3>
+          <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Past Booking ({combinedPastBookings.length})</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-h-[360px] overflow-y-auto no-scrollbar">
+        <div className="grid max-h-[360px] grid-cols-1 gap-4 overflow-y-auto no-scrollbar sm:gap-6 md:grid-cols-2 xl:grid-cols-3 md:max-h-[420px]">
           {combinedPastBookings.map((b) => (
-            <div key={b.key} className="bg-white rounded-xl shadow p-5 space-y-4">
-              <div className="flex items-center justify-between gap-2">
-                <h4 className="font-semibold text-[#364153] truncate">{b.title}</h4>
+            <div key={b.key} className="space-y-4 rounded-xl bg-white p-4 shadow sm:p-5">
+              <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+                <h4 className="w-full break-words font-semibold text-[#364153] sm:truncate">{b.title}</h4>
                 <span className="text-xs px-3 py-1 rounded-full bg-[#38EF0A] text-white whitespace-nowrap">Completed</span>
               </div>
 
               <div className="space-y-3 text-sm text-[#A7A7A7]">
                 {/* LOCATION */}
-                <div className="flex items-center text-lg gap-3 text-[#8E8E93]">
+                <div className="flex items-start gap-3 text-sm text-[#8E8E93] sm:items-center sm:text-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="text-[#38EF0A]" width={24} height={24} viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
                     </svg>
                   </div>
-                  {b.location}
+                  <span className="min-w-0 break-words">{b.location}</span>
                 </div>
 
                 {/* CALENDAR */}
