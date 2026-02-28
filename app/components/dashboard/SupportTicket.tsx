@@ -110,13 +110,21 @@ export default function SupportTicket() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
   const [callIssueView, setCallIssueView] = useState<"categories" | "payment" | "paymentTransactionFailed" | "updateContact" | "otherIssue">("categories");
   const [contactNumber, setContactNumber] = useState("+91 9876543210");
   const [isYesSelected, setIsYesSelected] = useState(false);
   const [otherIssueText, setOtherIssueText] = useState("");
 
+  const handleSubmitRequest = () => {
+    setIsCallModalOpen(false);
+    setCallIssueView("categories");
+    setIsYesSelected(false);
+    setIsRequestSuccessOpen(true);
+  };
+
   useEffect(() => {
-    const shouldLockScroll = isModalOpen || isHelpModalOpen || isCallModalOpen || isChatOpen;
+    const shouldLockScroll = isModalOpen || isHelpModalOpen || isCallModalOpen || isChatOpen || isRequestSuccessOpen;
 
     if (shouldLockScroll) {
       document.body.style.overflow = "hidden";
@@ -127,18 +135,18 @@ export default function SupportTicket() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isModalOpen, isHelpModalOpen, isCallModalOpen, isChatOpen]);
+  }, [isModalOpen, isHelpModalOpen, isCallModalOpen, isChatOpen, isRequestSuccessOpen]);
 
   return (
     <>
-      <section className="mx-auto mb-6 w-full max-w-[1256px] rounded-[10px] p-4 sm:p-5 md:p-6">
+      <section className="mx-auto mb-6 w-full max-w-[1256px] rounded-[10px] p-3 sm:p-5 md:p-6">
         <header className="flex h-auto min-h-[76px] w-full flex-col justify-center gap-4 rounded-[8px] px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-          <h2 className="text-[34px] font-semibold leading-none text-[#171717] sm:text-[32px]">Support Ticket</h2>
+          <h2 className="text-[26px] font-semibold leading-none text-[#171717] sm:text-[30px] md:text-[34px]">Support Ticket</h2>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex h-[50px] w-[245px] items-center  justify-center gap-2 rounded-[6px] bg-gradient-to-r from-[#32FC00] to-[#06CB20] px-4 text-[18px] font-semibold text-white shadow-sm hover:brightness-95"
+              className="inline-flex h-[46px] w-full items-center justify-center gap-2 rounded-[6px] bg-gradient-to-r from-[#32FC00] to-[#06CB20] px-4 text-[16px] font-semibold text-white shadow-sm hover:brightness-95 sm:h-[50px] sm:w-[245px] sm:text-[18px]"
             >
               <Icon icon="mdi:plus" width={28} />
               Create New Ticket
@@ -146,7 +154,7 @@ export default function SupportTicket() {
 
             <button
               onClick={() => setIsHelpModalOpen(true)}
-              className="inline-flex h-[50px] w-[162px] items-center justify-center gap-2 rounded-[6px] border border-[#29B605] bg-white px-4 text-[18px] font-medium hover:text-[#29B605] hover:bg-[#F7F7F7]"
+              className="inline-flex h-[46px] w-full items-center justify-center gap-2 rounded-[6px] border border-[#29B605] bg-white px-4 text-[16px] font-medium hover:bg-[#F7F7F7] hover:text-[#29B605] sm:h-[50px] sm:w-[162px] sm:text-[18px]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,14 +175,14 @@ export default function SupportTicket() {
         </header>
 
         <div className="mt-2 ">
-          <h3 className="text-[36px] font-semibold text-[#171717] sm:text-[34px]">My Tickets</h3>
+          <h3 className="text-[28px] font-semibold text-[#171717] sm:text-[32px] md:text-[36px]">My Tickets</h3>
         </div>
 
-        <div className="mt-4 h-[600px] overflow-hidden scroll-hidden rounded-[8px] border border-[#DFDFDF] bg-white">
+        <div className="mt-4 h-[460px] overflow-hidden scroll-hidden rounded-[8px] border border-[#DFDFDF] bg-white sm:h-[600px]">
           <div className="tickets-scroll h-full overflow-auto">
             <table className="min-w-[900px] w-full border-collapse">
               <thead>
-                <tr className="h-[75px] bg-[#A0FF89] text-left text-[24px] font-semibold text-[#364153]">
+                <tr className="h-[64px] bg-[#A0FF89] text-left text-[16px] font-semibold text-[#364153] sm:h-[75px] sm:text-[20px] md:text-[24px]">
                   <th className="px-4">Ticket ID</th>
                   <th className="px-4">Description</th>
                   <th className="px-4">Category</th>
@@ -187,7 +195,7 @@ export default function SupportTicket() {
                 {tickets.map((ticket) => (
                   <tr
                     key={ticket.id}
-                    className="h-[75px] border-t border-[#ECECEC] text-[20px] text-[#4A4A4A]"
+                    className="h-[64px] border-t border-[#ECECEC] text-[14px] text-[#4A4A4A] sm:h-[75px] sm:text-[18px] md:text-[20px]"
                   >
                     <td className="whitespace-nowrap px-4 text-[#6F6F6F]">{ticket.id}</td>
                     <td className="whitespace-nowrap px-4">{ticket.description}</td>
@@ -207,9 +215,9 @@ export default function SupportTicket() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-3 sm:p-4">
-          <div className="h-655px w-625px overflow-hidden rounded-[18px] bg-white shadow-2xl">
+          <div className="max-h-[92vh] w-full max-w-[625px] overflow-hidden rounded-[14px] bg-white shadow-2xl sm:rounded-[18px]">
             <div className="flex items-center justify-between border-b border-[#E4E4E4] px-5 py-5 sm:px-6">
-              <h3 className="text-[26px] font-medium leading-none text-[#364153]">Raise A New Ticket</h3>
+              <h3 className="text-[20px] font-medium leading-none text-[#364153] sm:text-[24px] md:text-[26px]">Raise A New Ticket</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="rounded-md p-1 text-[#7B7B7B] hover:bg-[#F4F4F4]"
@@ -219,11 +227,11 @@ export default function SupportTicket() {
               </button>
             </div>
 
-            <div className="h-[calc(92vh-102px)] space-y-5 overflow-y-auto px-5 py-5 sm:px-9">
+            <div className="max-h-[calc(92vh-92px)] space-y-5 overflow-y-auto px-4 py-5 sm:px-9">
               <div>
-                <label className="mb-2 block text-[22px] font-medium leading-none text-[#3E4A5E]">Category</label>
+                <label className="mb-2 block text-[18px] font-medium leading-none text-[#3E4A5E] sm:text-[22px]">Category</label>
                 <div className="relative">
-                  <select className="ticket-category h-[68px] w-full appearance-none rounded-[12px] border border-[#B8B8B8] bg-white px-5 pr-14 text-[16px] text-[#8A8A8A] outline-none focus:border-[#96CF89]">
+                  <select className="ticket-category h-[56px] w-full appearance-none rounded-[12px] border border-[#B8B8B8] bg-white px-4 pr-14 text-[15px] text-[#8A8A8A] outline-none focus:border-[#96CF89] sm:h-[68px] sm:px-5 sm:text-[16px]">
                     <option>Select Category</option>
                     <option>Payment Issue</option>
                     <option>Technical Issue</option>
@@ -235,27 +243,27 @@ export default function SupportTicket() {
               </div>
 
               <div>
-                <label className="mb-2 block text-[22px] font-medium leading-none text-[#3E4A5E]">Subject / Title</label>
+                <label className="mb-2 block text-[18px] font-medium leading-none text-[#3E4A5E] sm:text-[22px]">Subject / Title</label>
                 <input
                   type="text"
                   placeholder="Enter short problem title (e.g Payment Failed)"
-                  className="h-[68px] w-full rounded-[12px] border border-[#AAAAAA] px-5 text-[16px] text-[#303030] outline-none placeholder:text-[#8A8A8A] border-4px"
+                  className="h-[56px] w-full rounded-[12px] border border-[#AAAAAA] px-4 text-[15px] text-[#303030] outline-none placeholder:text-[#8A8A8A] sm:h-[68px] sm:px-5 sm:text-[16px]"
                 />
               </div>
 
               <div>
-                <label className="block text-[22px] mb-2 font-medium leading-none text-[#3E4A5E]">Decertation</label>
+                <label className="mb-2 block text-[18px] font-medium leading-none text-[#3E4A5E] sm:text-[22px]">Decertation</label>
                 <p className="mb-2 text-[14px] leading-[1.25] text-[#6F6F6F]">
                   Please describe your issue clearly and mention any actions you have taken in 50-150 words.
                 </p>
                 <textarea
                   placeholder="Describe your issue in detail..."
-                  className="h-[132px] w-full resize-none rounded-[16px] border border-[#AAAAAA] px-5 py-4 text-[16px] text-[#303030] outline-none placeholder:text-[#8A8A8A] focus:border-[#32EF00]"
+                  className="h-[120px] w-full resize-none rounded-[16px] border border-[#AAAAAA] px-4 py-4 text-[15px] text-[#303030] outline-none placeholder:text-[#8A8A8A] focus:border-[#32EF00] sm:h-[132px] sm:px-5 sm:text-[16px]"
                 />
               </div>
 
               <div>
-                <label className="block text-[22px] font-medium leading-none text-[#3E4A5E]">Upload Screenshot</label>
+                <label className="block text-[18px] font-medium leading-none text-[#3E4A5E] sm:text-[22px]">Upload Screenshot</label>
                 <p className="mb-3 text-[14px] leading-[1.25] text-[#6F6F6F]">
                   Please upload a clear screenshot that shows the exact issue you are facing to help us resolve it quickly.
                 </p>
@@ -273,7 +281,7 @@ export default function SupportTicket() {
                     />
                   </svg>
 
-                  <span className="mt-2 text-[16px] font-medium text-[#616161]">Upload Screenshot / Invoice / Error Image</span>
+                  <span className="mt-2 px-2 text-[14px] font-medium text-[#616161] sm:text-[16px]">Upload Screenshot / Invoice / Error Image</span>
                   <span className="mt-1 text-[14px] text-[#7E7E7E]">Drag And Drop Or Click To Browse</span>
                   <span className="mt-2 rounded-[6px] w-85px h-26.56px border border-[#BEBEBE] bg-white px-4 py-1 text-[14px] text-[#303030]">
                     Browse Files
@@ -283,11 +291,11 @@ export default function SupportTicket() {
               </div>
 
               <div>
-                <label className="mb-2 block text-[22px] font-medium leading-none text-[#3E4A5E]">Order ID/Transaction ID</label>
+                <label className="mb-2 block text-[18px] font-medium leading-none text-[#3E4A5E] sm:text-[22px]">Order ID/Transaction ID</label>
                 <input
                   type="text"
                   placeholder="Enter Order ID (if applicable)"
-                  className="h-[68px] w-full rounded-[12px] border border-[#B8B8B8] px-5 text-[16px] text-[#303030] outline-none placeholder:text-[#8A8A8A] focus:border-[#96CF89]"
+                  className="h-[56px] w-full rounded-[12px] border border-[#B8B8B8] px-4 text-[15px] text-[#303030] outline-none placeholder:text-[#8A8A8A] focus:border-[#96CF89] sm:h-[68px] sm:px-5 sm:text-[16px]"
                 />
               </div>
 
@@ -305,9 +313,9 @@ export default function SupportTicket() {
 
       {isHelpModalOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-3 sm:p-4">
-          <div className="h-[396px] w-full max-w-[514px] overflow-hidden rounded-[16px] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E5E5E5] px-6 py-4">
-              <h3 className="text-[21px] h-65px font-semibold text-[#171717]">How would you like to get help?</h3>
+          <div className="max-h-[92vh] w-full max-w-[514px] overflow-y-auto rounded-[16px] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E5E5E5] px-4 py-4 sm:px-6">
+              <h3 className="text-[18px] font-semibold text-[#171717] sm:text-[21px]">How would you like to get help?</h3>
               <button
                 onClick={() => setIsHelpModalOpen(false)}
                 className="rounded-md p-1 text-[#7D7D7D] hover:bg-[#F4F4F4]"
@@ -317,13 +325,13 @@ export default function SupportTicket() {
               </button>
             </div>
 
-            <div className="space-y-5 px-6 py-6">
+            <div className="space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-6">
               <button
                 onClick={() => {
                   setIsHelpModalOpen(false);
                   setIsChatOpen(true);
                 }}
-                className="group flex  w-[448px] h-[125px]  items-center gap-4 rounded-[16px] border border-[#D1D1D1] bg-[#FDFDFD] px-5 text-left hover:border-[#26B800] hover:bg-[#FAFAFA] active:border-[#26B800] focus-visible:border-[#26B800] focus-visible:outline-none"
+                className="group flex min-h-[108px] w-full items-center gap-3 rounded-[16px] border border-[#D1D1D1] bg-[#FDFDFD] px-4 text-left hover:border-[#26B800] hover:bg-[#FAFAFA] active:border-[#26B800] focus-visible:border-[#26B800] focus-visible:outline-none sm:min-h-[125px] sm:gap-4 sm:px-5"
               >
                 <div className="flex h-[50px] w-[50px] items-center justify-center rounded-[12px] bg-[#D9F8CF] group-hover:bg-[#26B800] group-active:bg-[#26B800] group-focus-visible:bg-[#26B800]">
                   <Icon icon="mdi:chat-processing-outline" width={30} className="text-[#26B800] group-hover:text-white group-active:text-white group-focus-visible:text-white" />
@@ -340,7 +348,7 @@ export default function SupportTicket() {
                   setCallIssueView("categories");
                   setIsCallModalOpen(true);
                 }}
-                className="group flex w-[448px] h-[125px]  items-center gap-4 rounded-[16px] border border-[#D1D1D1] bg-[#FDFDFD] px-5 text-left hover:border-[#26B800] hover:bg-[#FAFAFA] active:border-[#26B800] focus-visible:border-[#26B800] focus-visible:outline-none"
+                className="group flex min-h-[108px] w-full items-center gap-3 rounded-[16px] border border-[#D1D1D1] bg-[#FDFDFD] px-4 text-left hover:border-[#26B800] hover:bg-[#FAFAFA] active:border-[#26B800] focus-visible:border-[#26B800] focus-visible:outline-none sm:min-h-[125px] sm:gap-4 sm:px-5"
               >
                 <div className="flex h-[50px] w-[50px] items-center justify-center rounded-[12px] bg-[#D9F8CF] group-hover:bg-[#26B800] group-active:bg-[#26B800] group-focus-visible:bg-[#26B800]">
                   <Icon icon="mdi:phone-outline" width={30} className="text-[#26B800] group-hover:text-white group-active:text-white group-focus-visible:text-white" />
@@ -358,9 +366,9 @@ export default function SupportTicket() {
       {isCallModalOpen && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 p-3 sm:p-4">
           {callIssueView === "categories" ? (
-            <div className="h-[480px] w-full max-w-[514px] overflow-hidden rounded-[14px] bg-white shadow-2xl">
-              <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-6 text-white">
-                <h3 className="text-[20px] font-semibold leading-none">ChargeFlow Support</h3>
+            <div className="max-h-[92vh] w-full max-w-[514px] overflow-y-auto rounded-[14px] bg-white shadow-2xl lg:h-[480px] lg:max-h-[480px] lg:w-[514px] lg:overflow-hidden lg:rounded-[12px]">
+              <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-4 text-white sm:px-6">
+                <h3 className="text-[18px] font-semibold leading-none sm:text-[20px]">ChargeFlow Support</h3>
                 <button
                   onClick={() => {
                     setIsCallModalOpen(false);
@@ -373,11 +381,11 @@ export default function SupportTicket() {
                 </button>
               </div>
 
-              <div className="px-6 py-6">
-                <h4 className="text-center text-[25px] font-medium leading-none text-[#374151]">Request a Call</h4>
+              <div className="px-4 py-5 sm:px-6 sm:py-6">
+                <h4 className="text-center text-[22px] font-medium leading-none text-[#374151] sm:text-[25px]">Request a Call</h4>
                 <p className="mt-2 text-center text-[16px] text-[#919191]">Please select the type of issue you&apos;re facing:</p>
 
-                <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6">
+                <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-6">
                   <button
                     onClick={() => setCallIssueView("payment")}
                     className="flex h-[48px] items-center gap-3 rounded-[10px] border border-[#CFCFCF] px-4 text-left hover:border-[#25C300] hover:bg-[#EDFFE7]"
@@ -417,8 +425,8 @@ export default function SupportTicket() {
               </div>
             </div>
             ) : callIssueView === "payment" ? (
-              <div className="h-[480px] w-full max-w-[514px] overflow-hidden rounded-[14px] bg-white shadow-2xl">
-                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-6 text-white">
+              <div className="max-h-[92vh] w-full max-w-[514px] overflow-y-auto rounded-[14px] bg-white shadow-2xl lg:h-[480px] lg:max-h-[480px] lg:w-[514px] lg:overflow-hidden lg:rounded-[12px]">
+                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-4 text-white sm:px-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCallIssueView("categories")}
@@ -427,7 +435,7 @@ export default function SupportTicket() {
                     >
                       <Icon icon="mdi:arrow-left" width={30} />
                     </button>
-                    <h3 className="text-[20px] font-semibold leading-none">ChargeFlow Support</h3>
+                    <h3 className="text-[18px] font-semibold leading-none sm:text-[20px]">ChargeFlow Support</h3>
                   </div>
                   <button
                     onClick={() => {
@@ -441,8 +449,8 @@ export default function SupportTicket() {
                   </button>
                 </div>
 
-              <div className="px-8 py-4 flex flex-col items-center text-center">
-                <h4 className="text-center text-[25px] font-semibold leading-none text-[#4B5563]">Payment Issue</h4>
+              <div className="flex flex-col items-center px-4 py-4 text-center sm:px-8">
+                <h4 className="text-center text-[22px] font-semibold leading-none text-[#4B5563] sm:text-[25px]">Payment Issue</h4>
                 <p className="mt-2 text-center text-[15px] text-[#9CA3AF]">Please select the type of payment problem</p>
 
                   <div className="mt-4 flex w-full flex-col items-center space-y-2">
@@ -462,7 +470,7 @@ export default function SupportTicket() {
                             setCallIssueView("paymentTransactionFailed");
                           }
                         }}
-                        className="group flex h-[45px] w-full max-w-[410px] items-center gap-3 rounded-[8px] border border-[#AAAAAA] px-3 text-left hover:border-[#32C42A] active:border-[#27C300]"
+                        className="group flex min-h-[45px] w-full max-w-[410px] items-center gap-3 rounded-[8px] border border-[#AAAAAA] px-3 py-2 text-left hover:border-[#32C42A] active:border-[#27C300]"
                       >
                         <span className="flex h-[28px] w-[28px] items-center justify-center rounded-[6px] border border-[#CFCFCF] ">
                           <Icon icon="mdi:check" width={21} className="text-[#32C42A]" />
@@ -474,8 +482,8 @@ export default function SupportTicket() {
                 </div>
               </div>
             ) : callIssueView === "paymentTransactionFailed" ? (
-              <div className="h-[480px] w-full max-w-[514px] overflow-hidden rounded-[14px] bg-white shadow-2xl">
-                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-6 text-white">
+              <div className="max-h-[92vh] w-full max-w-[514px] overflow-y-auto rounded-[14px] bg-white shadow-2xl lg:h-[480px] lg:max-h-[480px] lg:w-[514px] lg:overflow-hidden lg:rounded-[12px]">
+                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-4 text-white sm:px-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCallIssueView("payment")}
@@ -484,7 +492,7 @@ export default function SupportTicket() {
                     >
                       <Icon icon="mdi:arrow-left" width={30} />
                     </button>
-                    <h3 className="text-[20px] font-semibold leading-none">ChargeFlow Support</h3>
+                    <h3 className="text-[18px] font-semibold leading-none sm:text-[20px]">ChargeFlow Support</h3>
                   </div>
                   <button
                     onClick={() => {
@@ -498,7 +506,7 @@ export default function SupportTicket() {
                   </button>
                 </div>
 
-                <div className="px-8 py-6">
+                <div className="px-4 py-5 sm:px-8 sm:py-6">
                   <div className="mx-auto flex h-[35.56px] w-full max-w-[324px] items-center gap-3 rounded-[8px] bg-[#2BD600] px-4 text-white">
                     <span className="flex h-[24px] w-[24px] items-center justify-center rounded-[6px] bg-[#ECECEC]">
                       <Icon icon="mdi:check" width={16} className="text-[#2FBF1F]" />
@@ -506,7 +514,7 @@ export default function SupportTicket() {
                     <span className="text-[14px] font-medium leading-none">Payment Issue -&gt; Transaction failed</span>
                   </div>
                   <div className=" h-[66px]  ">
-                  <h4 className="mt-6 text-center text-[24px] font-medium leading-none text-[#374151]">Confirm Your Registered Number</h4>
+                  <h4 className="mt-6 text-center text-[20px] font-medium leading-none text-[#374151] sm:text-[24px]">Confirm Your Registered Number</h4>
                   <p className="mx-auto mt-3 max-w-[430px] text-center text-[14px] leading-tight text-[#8C8C8C]">
                     Our support team will call you within 2-5 minutes regarding your transaction issue.
                   </p>
@@ -516,10 +524,10 @@ export default function SupportTicket() {
                     <span className="text-[19px] font-medium leading-none text-[#374151]">+91 XXXXXX432</span>
                   </div>
 
-                  <div className="mx-auto mt-10 grid w-full max-w-[405px] grid-cols-2 gap-6">
+                  <div className="mx-auto mt-8 grid w-full max-w-[405px] grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-6">
                     <button
                       onClick={() => setIsYesSelected(true)}
-                      className={`flex h-[42px] w-[190px] items-center justify-center gap-2 rounded-[10px] border text-[18px] font-medium ${
+                      className={`flex h-[42px] w-full items-center justify-center gap-2 rounded-[10px] border text-[16px] font-medium sm:text-[18px] ${
                         isYesSelected
                           ? "border-[#2BD600] bg-[#2BD600] text-white"
                           : "border-[#31CB1A] text-[#2FBF1F]"
@@ -533,7 +541,7 @@ export default function SupportTicket() {
                         setIsYesSelected(false);
                         setCallIssueView("updateContact");
                       }}
-                      className="flex h-[42px] w-[190px] items-center justify-center rounded-[10px] border border-[#C5C5C5] text-[18px] font-medium text-[#7A7A7A]"
+                      className="flex h-[42px] w-full items-center justify-center rounded-[10px] border border-[#C5C5C5] text-[16px] font-medium text-[#7A7A7A] sm:text-[18px]"
                     >
                       No
                     </button>
@@ -542,7 +550,10 @@ export default function SupportTicket() {
                   {isYesSelected && (
                     <>
                       <div className="mx-auto mt-6 h-px w-full max-w-[470px] bg-[#CFCFCF]" />
-                      <button className="mx-auto mt-6 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[21px] font-medium text-white hover:brightness-95">
+                      <button
+                        onClick={handleSubmitRequest}
+                        className="mx-auto mt-6 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[18px] font-medium text-white hover:brightness-95 sm:text-[21px]"
+                      >
                         Submit Request
                       </button>
                     </>
@@ -550,8 +561,8 @@ export default function SupportTicket() {
                 </div>
               </div>
             ) : callIssueView === "updateContact" ? (
-              <div className="h-[480px] w-full max-w-[514px] overflow-hidden rounded-[14px] bg-[#ECECEC] shadow-2xl">
-                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-6 text-white">
+              <div className="max-h-[92vh] w-full max-w-[514px] overflow-y-auto rounded-[14px] bg-white shadow-2xl lg:h-[480px] lg:max-h-[480px] lg:w-[514px] lg:overflow-hidden lg:rounded-[12px]">
+                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-4 text-white sm:px-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCallIssueView("paymentTransactionFailed")}
@@ -560,7 +571,7 @@ export default function SupportTicket() {
                     >
                       <Icon icon="mdi:arrow-left" width={30} />
                     </button>
-                    <h3 className="text-[20px] font-semibold leading-none">ChargeFlow Support</h3>
+                    <h3 className="text-[18px] font-semibold leading-none sm:text-[20px]">ChargeFlow Support</h3>
                   </div>
                   <button
                     onClick={() => {
@@ -574,8 +585,8 @@ export default function SupportTicket() {
                   </button>
                 </div>
 
-                <div className="px-8 pt-[98px]">
-                  <h4 className="text-center text-[24px] font-medium leading-none text-[#374151]">Update Contact Number</h4>
+                <div className="px-4 pb-8 pt-10 sm:px-8 sm:pt-16">
+                  <h4 className="text-center text-[20px] font-medium leading-none text-[#374151] sm:text-[24px]">Update Contact Number</h4>
 
                   <input
                     type="text"
@@ -584,14 +595,17 @@ export default function SupportTicket() {
                     className="mx-auto mt-8 block h-[44px] w-full max-w-[412px] rounded-[8px] border border-[#32EF00] bg-white px-4 text-[18px] font-medium text-[#374151] outline-none"
                   />
 
-                  <button className="mx-auto mt-[62px] block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[21px] font-medium text-white hover:brightness-95">
+                  <button
+                    onClick={handleSubmitRequest}
+                    className="mx-auto mt-10 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[18px] font-medium text-white hover:brightness-95 sm:mt-[62px] sm:text-[21px]"
+                  >
                     Submit Request
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="h-[480px] w-full max-w-[514px] overflow-hidden rounded-[14px] bg-white shadow-2xl">
-                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-6 text-white">
+              <div className="max-h-[92vh] w-full max-w-[514px] overflow-y-auto rounded-[14px] bg-white shadow-2xl lg:h-[480px] lg:max-h-[480px] lg:w-[514px] lg:overflow-hidden lg:rounded-[12px]">
+                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-4 text-white sm:px-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCallIssueView("categories")}
@@ -600,7 +614,7 @@ export default function SupportTicket() {
                     >
                       <Icon icon="mdi:arrow-left" width={30} />
                     </button>
-                    <h3 className="text-[20px] font-semibold leading-none">ChargeFlow Support</h3>
+                    <h3 className="text-[18px] font-semibold leading-none sm:text-[20px]">ChargeFlow Support</h3>
                   </div>
                   <button
                     onClick={() => {
@@ -614,23 +628,46 @@ export default function SupportTicket() {
                   </button>
                 </div>
 
-                <div className="px-8 pt-[38px]">
-                  <h4 className="text-center text-[28px] font-medium leading-none text-[#374151]">Other Issue</h4>
+                <div className="px-4 pb-8 pt-8 sm:px-8 sm:pt-[38px]">
+                  <h4 className="text-center text-[24px] font-medium leading-none text-[#374151] sm:text-[28px]">Other Issue</h4>
                   <p className="mt-2 text-center text-[14px] text-[#8C8C8C]">Please briefly describe your issue.</p>
 
                   <textarea
                     value={otherIssueText}
                     onChange={(e) => setOtherIssueText(e.target.value)}
                     placeholder="Describe your issue......"
-                    className="mt-10 h-[88px] w-full resize-none rounded-[10px] border border-[#AFAFAF]  px-4 py-3 text-[18px] text-[#374151] outline-none placeholder:text-[#8B8B8B]"
+                    className="mt-8 h-[96px] w-full resize-none rounded-[10px] border border-[#AFAFAF] px-4 py-3 text-[16px] text-[#374151] outline-none placeholder:text-[#8B8B8B] sm:mt-10 sm:h-[88px] sm:text-[18px]"
                   />
 
-                  <button className="mx-auto mt-12 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[21px] font-medium text-white hover:brightness-95">
+                  <button
+                    onClick={handleSubmitRequest}
+                    className="mx-auto mt-8 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[18px] font-medium text-white hover:brightness-95 sm:mt-12 sm:text-[21px]"
+                  >
                     Submit Request
                   </button>
                 </div>
               </div>
             )}
+        </div>
+      )}
+
+      {isRequestSuccessOpen && (
+        <div
+          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-3 sm:p-4"
+          onClick={() => setIsRequestSuccessOpen(false)}
+        >
+          <div
+            className="flex h-[480px] w-full max-w-[514px] flex-col items-center justify-center rounded-[12px] bg-white px-6 text-center shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex h-[131px] w-[131px] items-center justify-center rounded-full bg-[#2fdf03] shadow-[0_0_18px_rgba(47,223,3,0.65)]">
+              <Icon icon="mdi:check" width={72} className="text-white" />
+            </div>
+            <h3 className="mt-10 text-[30px] font-semibold leading-none text-[#5F5F5F] sm:text-[30px]">Request Submitted Successfully!</h3>
+            <p className="mt-4 max-w-[400px] text-[21px] leading-[1.35] text-[#8A8A8A] sm:text-[16px]">
+              Your call request has been submitted successfully. our support team will contact you shortly.
+            </p>
+          </div>
         </div>
       )}
 
