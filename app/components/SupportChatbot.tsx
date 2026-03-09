@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Icon } from "@iconify/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type QuickTopic = {
   title: string;
@@ -70,6 +70,11 @@ const PAYMENT_TOPICS: QuickTopic[] = [
     icon: "mdi:file-document-outline",
   },
   {
+    title: "Other",
+    description: "",
+    icon: "mdi:dots-horizontal",
+  },
+  {
     title: "Back to main menu",
     description: "",
     icon: "mdi:keyboard-backspace",
@@ -95,6 +100,31 @@ export default function SupportChatbot({
   const isControlled = typeof isOpenProp === "boolean";
   const isOpen = isControlled ? (isOpenProp as boolean) : internalOpen;
   const disabled = useMemo(() => !input.trim(), [input]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const { style } = document.body;
+    const count = Number(document.body.dataset.bodyScrollLockCount ?? "0");
+
+    if (count === 0) {
+      document.body.dataset.bodyScrollPrevOverflow = style.overflow;
+      style.overflow = "hidden";
+    }
+    document.body.dataset.bodyScrollLockCount = String(count + 1);
+
+    return () => {
+      const current = Number(document.body.dataset.bodyScrollLockCount ?? "0");
+      const next = Math.max(0, current - 1);
+      document.body.dataset.bodyScrollLockCount = String(next);
+
+      if (next === 0) {
+        style.overflow = document.body.dataset.bodyScrollPrevOverflow ?? "";
+        delete document.body.dataset.bodyScrollPrevOverflow;
+        delete document.body.dataset.bodyScrollLockCount;
+      }
+    };
+  }, [isOpen]);
 
   const setIsOpen = (next: boolean) => {
     if (!isControlled) setInternalOpen(next);
@@ -320,3 +350,4 @@ export default function SupportChatbot({
     </>
   );
 }
+

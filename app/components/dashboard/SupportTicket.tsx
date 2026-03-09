@@ -111,31 +111,53 @@ export default function SupportTicket() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
-  const [callIssueView, setCallIssueView] = useState<"categories" | "payment" | "paymentTransactionFailed" | "updateContact" | "otherIssue">("categories");
+  const [callIssueView, setCallIssueView] = useState<"categories" | "payment" | "paymentTransactionFailed" | "paymentOther" | "updateContact" | "otherIssue">("categories");
   const [contactNumber, setContactNumber] = useState("+91 9876543210");
-  const [isYesSelected, setIsYesSelected] = useState(false);
   const [otherIssueText, setOtherIssueText] = useState("");
 
   const handleSubmitRequest = () => {
     setIsCallModalOpen(false);
     setCallIssueView("categories");
-    setIsYesSelected(false);
     setIsRequestSuccessOpen(true);
   };
 
   useEffect(() => {
-    const shouldLockScroll = isModalOpen || isHelpModalOpen || isCallModalOpen || isChatOpen || isRequestSuccessOpen;
+    const shouldLockScroll = isModalOpen || isHelpModalOpen || isCallModalOpen || isRequestSuccessOpen;
+    if (!shouldLockScroll) return;
 
-    if (shouldLockScroll) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    const { style } = document.body;
+    const count = Number(document.body.dataset.bodyScrollLockCount ?? "0");
+
+    if (count === 0) {
+      document.body.dataset.bodyScrollPrevOverflow = style.overflow;
+      style.overflow = "hidden";
     }
+    document.body.dataset.bodyScrollLockCount = String(count + 1);
 
     return () => {
-      document.body.style.overflow = "";
+      const current = Number(document.body.dataset.bodyScrollLockCount ?? "0");
+      const next = Math.max(0, current - 1);
+      document.body.dataset.bodyScrollLockCount = String(next);
+
+      if (next === 0) {
+        style.overflow = document.body.dataset.bodyScrollPrevOverflow ?? "";
+        delete document.body.dataset.bodyScrollPrevOverflow;
+        delete document.body.dataset.bodyScrollLockCount;
+      }
     };
-  }, [isModalOpen, isHelpModalOpen, isCallModalOpen, isChatOpen, isRequestSuccessOpen]);
+  }, [isModalOpen, isHelpModalOpen, isCallModalOpen, isRequestSuccessOpen]);
+
+  useEffect(() => {
+    if (!isRequestSuccessOpen) return;
+
+    const timer = window.setTimeout(() => {
+      setIsRequestSuccessOpen(false);
+    }, 3000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isRequestSuccessOpen]);
 
   return (
     <>
@@ -143,23 +165,24 @@ export default function SupportTicket() {
         <header className="flex h-auto min-h-[76px] w-full flex-col justify-center gap-4 rounded-[8px] px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           <h2 className="text-[26px] font-semibold leading-none text-[#171717] sm:text-[30px] md:text-[34px]">Support Ticket</h2>
 
-          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="flex w-full flex-row items-center gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex h-[46px] w-full items-center justify-center gap-2 rounded-[6px] bg-gradient-to-r from-[#32FC00] to-[#06CB20] px-4 text-[16px] font-semibold text-white shadow-sm hover:brightness-95 sm:h-[50px] sm:w-[245px] sm:text-[18px]"
+              className="inline-flex h-[46px] flex-1 items-center justify-center gap-2 rounded-[6px] bg-gradient-to-r from-[#32FC00] to-[#06CB20] px-3 text-[14px] font-semibold text-white shadow-sm hover:brightness-95 sm:h-[50px] sm:w-[245px] sm:flex-none sm:px-4 sm:text-[18px]"
             >
               <Icon icon="mdi:plus" width={28} />
-              Create New Ticket
+              <span className="sm:hidden">Create New</span>
+              <span className="hidden sm:inline">Create New Ticket</span>
             </button>
 
             <button
               onClick={() => setIsHelpModalOpen(true)}
-              className="inline-flex h-[46px] w-full items-center justify-center gap-2 rounded-[6px] border border-[#29B605] bg-white px-4 text-[16px] font-medium hover:bg-[#F7F7F7] hover:text-[#29B605] sm:h-[50px] sm:w-[162px] sm:text-[18px]"
+              className="inline-flex h-[46px] flex-1 items-center justify-center gap-2 rounded-[6px] border border-[#29B605] bg-white px-3 text-[14px] font-medium hover:bg-[#F7F7F7] hover:text-[#29B605] sm:h-[50px] sm:w-[162px] sm:flex-none sm:px-4 sm:text-[18px]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                className="w-[18px] h-[18px] text-current"
+                className="h-[16px] w-[16px] text-current sm:h-[18px] sm:w-[18px]"
                 fill="none"
               >
                 <path
@@ -466,8 +489,9 @@ export default function SupportTicket() {
                         key={issue}
                         onClick={() => {
                           if (index === 0) {
-                            setIsYesSelected(false);
                             setCallIssueView("paymentTransactionFailed");
+                          } else if (issue === "Other") {
+                            setCallIssueView("paymentOther");
                           }
                         }}
                         className="group flex min-h-[45px] w-full max-w-[410px] items-center gap-3 rounded-[8px] border border-[#AAAAAA] px-3 py-2 text-left hover:border-[#32C42A] active:border-[#27C300]"
@@ -526,38 +550,19 @@ export default function SupportTicket() {
 
                   <div className="mx-auto mt-8 grid w-full max-w-[405px] grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-6">
                     <button
-                      onClick={() => setIsYesSelected(true)}
-                      className={`flex h-[42px] w-full items-center justify-center gap-2 rounded-[10px] border text-[16px] font-medium sm:text-[18px] ${
-                        isYesSelected
-                          ? "border-[#2BD600] bg-[#2BD600] text-white"
-                          : "border-[#31CB1A] text-[#2FBF1F]"
-                      }`}
+                      onClick={handleSubmitRequest}
+                      className="flex h-[42px] w-full items-center justify-center gap-2 rounded-[10px] border border-[#31CB1A] text-[16px] font-medium text-[#2FBF1F] sm:text-[18px]"
                     >
                       <Icon icon="mdi:check" width={28} />
                       Yes
                     </button>
                     <button
-                      onClick={() => {
-                        setIsYesSelected(false);
-                        setCallIssueView("updateContact");
-                      }}
+                      onClick={() => setCallIssueView("payment")}
                       className="flex h-[42px] w-full items-center justify-center rounded-[10px] border border-[#C5C5C5] text-[16px] font-medium text-[#7A7A7A] sm:text-[18px]"
                     >
                       No
                     </button>
                   </div>
-
-                  {isYesSelected && (
-                    <>
-                      <div className="mx-auto mt-6 h-px w-full max-w-[470px] bg-[#CFCFCF]" />
-                      <button
-                        onClick={handleSubmitRequest}
-                        className="mx-auto mt-6 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[18px] font-medium text-white hover:brightness-95 sm:text-[21px]"
-                      >
-                        Submit Request
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             ) : callIssueView === "updateContact" ? (
@@ -598,6 +603,51 @@ export default function SupportTicket() {
                   <button
                     onClick={handleSubmitRequest}
                     className="mx-auto mt-10 block h-[48px] w-full max-w-[420px] rounded-[12px] bg-[#55E830] text-[18px] font-medium text-white hover:brightness-95 sm:mt-[62px] sm:text-[21px]"
+                  >
+                    Submit Request
+                  </button>
+                </div>
+              </div>
+            ) : callIssueView === "paymentOther" ? (
+              <div className="max-h-[92vh] w-full max-w-[514px] overflow-hidden rounded-[14px] bg-white shadow-2xl lg:h-[480px] lg:max-h-[480px] lg:w-[514px] lg:rounded-[12px]">
+                <div className="flex h-[52px] items-center justify-between bg-[#27C300] px-4 text-white sm:px-6">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCallIssueView("payment")}
+                      className="rounded-md p-1 text-white/95 hover:bg-[#24AE00]"
+                      aria-label="Back to payment issues"
+                    >
+                      <Icon icon="mdi:arrow-left" width={30} />
+                    </button>
+                    <h3 className="text-[18px] font-semibold leading-none sm:text-[20px]">ChargeFlow Support</h3>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsCallModalOpen(false);
+                      setCallIssueView("categories");
+                      setOtherIssueText("");
+                    }}
+                    className="rounded-md p-1 text-white/95 hover:bg-[#24AE00]"
+                    aria-label="Close payment other popup"
+                  >
+                    <Icon icon="mdi:close" width={30} />
+                  </button>
+                </div>
+
+                <div className="h-[calc(100%-52px)] bg-white px-6 pb-8 pt-7 sm:px-8">
+                  <h4 className="text-center text-[24px] font-semibold leading-tight text-[#3A4456] sm:text-[28px]">Describe Your Payment Issue</h4>
+                  <p className="mt-1 text-center text-[15px] text-[#7B7B7B] sm:text-[15px]">Please briefly describe your payment problem.</p>
+
+                  <textarea
+                    value={otherIssueText}
+                    onChange={(e) => setOtherIssueText(e.target.value)}
+                    placeholder="Describe your issue......"
+                    className="mt-8 h-[96px] w-full resize-none rounded-[8px] border border-[#BDBDBD] bg-white px-4 py-3 text-[16px] text-[#374151] outline-none placeholder:text-[#999999] sm:mt-10 sm:h-[88px] sm:text-[20px]"
+                  />
+
+                  <button
+                    onClick={handleSubmitRequest}
+                    className="mx-auto mt-8 block h-[48px] w-full max-w-[420px] rounded-[10px] bg-[#4EE12D] text-[20px] font-medium text-white hover:brightness-95 sm:mt-12 sm:text-[20px]"
                   >
                     Submit Request
                   </button>
@@ -697,3 +747,4 @@ export default function SupportTicket() {
     </>
   );
 }
+

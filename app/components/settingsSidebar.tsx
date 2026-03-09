@@ -49,7 +49,9 @@ type SettingsTab =
   | "Personal Information"
   | "Security"
   | "Notifications"
-  | "Export Data";
+  | "Export Data"
+  | "Deactivate"
+  | "Delete";
 
 interface Props {
   activeTab: SettingsTab;

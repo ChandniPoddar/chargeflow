@@ -71,6 +71,15 @@ export default function Page() {
 
   /* ================= BROWSER BACK BUTTON ================= */
   useEffect(() => {
+    const { style } = document.body;
+
+    document.body.dataset.bodyScrollLockCount = "0";
+    delete document.body.dataset.bodyScrollPrevOverflow;
+    style.overflow = "";
+    style.position = "";
+    style.top = "";
+    style.width = "";
+
     const handlePopState = () => {
       setViewMode("dashboard");
     };

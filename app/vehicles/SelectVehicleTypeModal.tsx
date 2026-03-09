@@ -6,6 +6,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onBack?: () => void;
+  onSelect?: (type: string) => void;
 }
 
 const vehicles = [
@@ -19,6 +20,7 @@ export default function SelectVehicleTypeModal({
   open,
   onClose,
   onBack,
+  onSelect,
 }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string>("two-wheeler");
@@ -27,6 +29,10 @@ export default function SelectVehicleTypeModal({
 
   const handleNavigate = (type: string) => {
     setSelected(type);
+    if (onSelect) {
+      onSelect(type);
+      return;
+    }
     onClose();
     router.push(`/vehicles/${type}`);
   };
